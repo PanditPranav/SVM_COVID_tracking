@@ -135,7 +135,7 @@ confirmed, deaths = get_data()
 
 st.sidebar.markdown('## **EpiCenter for Disease Dynamics**') 
 st.sidebar.markdown('**One Health Institute  School of Veterinary Medicine   UC Davis**') 
-st.sidebar.markdown("# Metrics for phased reopening")
+st.sidebar.markdown("# Key COVID-19 Metrics")
 st.sidebar.markdown("https://www.covidlocal.org/metrics/")
 st.sidebar.markdown('For additional information  please contact *epicenter@ucdavis.edu*  https://ohi.vetmed.ucdavis.edu/centers/epicenter-disease-dynamics')
 st.sidebar.markdown('## Select counties of interest')
