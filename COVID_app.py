@@ -8,6 +8,11 @@ import matplotlib.dates as dates
 from matplotlib.dates import MonthLocator, DateFormatter, WeekdayLocator
 from matplotlib.ticker import NullFormatter
 import seaborn as sns
+from urllib.request import urlopen
+import json 
+from pandas.io.json import json_normalize
+import pandas as pd
+import requests
 today = date.today()
 #sns.set_style('whitegrid')
 style.use('fivethirtyeight')
