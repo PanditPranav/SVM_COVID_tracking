@@ -2,4 +2,4 @@ pandas
 matplotlib
 seaborn
 datetime
-streamlit 
+streamlit==0.63.1 
