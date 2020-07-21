@@ -243,7 +243,14 @@ def plot_county(county):
         plt.suptitle('Current situation of COVID-19 cases in specified region of California ('+ str(today)+')')
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     st.pyplot()
-
+    
+    import streamlit.components.v1 as components
+    if len(county)<=3:
+        for C in county:
+            st.text(C)
+            f = FIPSs[FIPSs.County == C].FIPS.values[0]
+            components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
+        
 @st.cache
 def get_data():
     US_confirmed = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv'
@@ -270,6 +277,7 @@ st.sidebar.markdown("(C) Cumulative cases and deaths")
 st.sidebar.markdown("(D) Daily new tests")
 st.sidebar.markdown("Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.")
 st.sidebar.markdown("The data is updated at least once a day or sometimes twice a day in the COVID-19 Data Repository.  https://github.com/CSSEGISandData/COVID-19")
+st.sidebar.markdown("Infection rate, positive test rate, ICU headtoom and contacts traceed from https://covidactnow.org/")
 st.sidebar.text('Report updated on '+ str(today))
 st.markdown(COUNTIES_SELECTED)
 plot_county(COUNTIES_SELECTED)
