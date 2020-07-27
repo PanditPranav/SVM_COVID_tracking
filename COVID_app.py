@@ -53,7 +53,7 @@ def plot_county(county):
             except: 
                 data['new_negative_tests'] = np.nan
                 st.text('Negative test data not avilable')
-            data['new_negative_tests_rolling'] = data['new_negative_tests'].fillna(0).rolling(7).mean()
+            data['new_negative_tests_rolling'] = data['new_negative_tests'].fillna(0).rolling(14).mean()
             
             
             try:
@@ -62,9 +62,9 @@ def plot_county(county):
             except: 
                 data['new_positive_tests'] = np.nan
                 st.text('test data not avilable')
-            data['new_positive_tests_rolling'] = data['new_positive_tests'].fillna(0).rolling(7).mean()
+            data['new_positive_tests_rolling'] = data['new_positive_tests'].fillna(0).rolling(14).mean()
             data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
-            data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(7).mean()
+            data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(14).mean()
             data['testing_positivity_rolling'] = (data['new_positive_tests_rolling'] / data['new_tests_rolling'])*100
             #data['testing_positivity_rolling'].tail(14).plot()
             #plt.show()
@@ -100,10 +100,10 @@ def plot_county(county):
                 new_tests.append(data['new_tests'])
 
             new_positive_tests_rolling = pd.concat(new_positive_tests, axis = 1).sum(axis = 1)
-            new_positive_tests_rolling = new_positive_tests_rolling.fillna(0).rolling(7).mean()
+            new_positive_tests_rolling = new_positive_tests_rolling.fillna(0).rolling(14).mean()
         
             new_tests_rolling = pd.concat(new_tests, axis = 1).sum(axis = 1)
-            new_tests_rolling = new_tests_rolling.fillna(0).rolling(7).mean()
+            new_tests_rolling = new_tests_rolling.fillna(0).rolling(14).mean()
             
             data_to_show = (new_positive_tests_rolling / new_tests_rolling)*100
             return new_tests_rolling, data_to_show.iloc[-1:].values[0]
@@ -123,7 +123,7 @@ def plot_county(county):
             except: 
                 data['new_negative_tests'] = np.nan
                 print('Negative test data not avilable')
-            data['new_negative_tests_rolling'] = data['new_negative_tests'].fillna(0).rolling(7).mean()
+            data['new_negative_tests_rolling'] = data['new_negative_tests'].fillna(0).rolling(14).mean()
             
             
             try:
@@ -132,9 +132,9 @@ def plot_county(county):
             except: 
                 data['new_positive_tests'] = np.nan
                 st.text('test data not avilable')
-            data['new_positive_tests_rolling'] = data['new_positive_tests'].fillna(0).rolling(7).mean()
+            data['new_positive_tests_rolling'] = data['new_positive_tests'].fillna(0).rolling(14).mean()
             data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
-            data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(7).mean()
+            data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(14).mean()
             data['testing_positivity_rolling'] = (data['new_positive_tests_rolling'] / data['new_tests_rolling'])*100
             #data['testing_positivity_rolling'].tail(14).plot()
             #plt.show()
@@ -184,7 +184,7 @@ def plot_county(county):
     st.text("Population under consideration = %s"% '{:,.0f}'.format(population))
     st.text("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
     st.text("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
-    st.text("% test positivity (7 day average)= "+"%.2f" % testing_percent)
+    st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
     fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
@@ -263,7 +263,7 @@ confirmed, deaths = get_data()
 
 st.sidebar.markdown('# COVID-19 Data and Reporting')
 st.sidebar.markdown('## **EpiCenter for Disease Dynamics**') 
-st.sidebar.markdown('**One Health Institute  School of Veterinary Medicine   UC Davis**') 
+st.sidebar.markdown('**School of Veterinary Medicine   UC Davis**') 
 st.sidebar.markdown("## Key COVID-19 Metrics")
 st.sidebar.markdown("COVID-Local provides basic key metrics against which to assess pandemic response and progress toward reopening. See more at https://www.covidlocal.org/metrics/")
 st.sidebar.markdown('For additional information  please contact *epicenter@ucdavis.edu*  https://ohi.vetmed.ucdavis.edu/centers/epicenter-disease-dynamics')
