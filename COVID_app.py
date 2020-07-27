@@ -19,7 +19,7 @@ style.use('fivethirtyeight')
 plt.rcParams['lines.linewidth'] = 1
 dpi = 1000
 plt.rcParams['font.size'] = 13
-plt.rcParams['font.family'] = 'Times New Roman'
+#plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams['axes.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['axes.titlesize'] = plt.rcParams['font.size']
 plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
