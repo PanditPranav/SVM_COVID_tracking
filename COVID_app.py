@@ -110,13 +110,11 @@ def plot_county(county):
         else:
             st.text('Getting testing data for California State')
             path1 = 'https://data.covidactnow.org/latest/us/states/CA.OBSERVED_INTERVENTION.timeseries.json'
-            #print(path1)
             df = json.loads(requests.get(path1).text)
-            #print(df.keys())
             data = pd.DataFrame.from_dict(df['actualsTimeseries'])
             data['Date'] = pd.to_datetime(data['date'])
             data = data.set_index('Date')
-            #print(data.tail())
+            
             try:
                 data['new_negative_tests'] = data['cumulativeNegativeTests'].diff()
                 data.loc[(data['new_negative_tests'] < 0)] = np.nan
@@ -136,8 +134,6 @@ def plot_county(county):
             data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
             data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(14).mean()
             data['testing_positivity_rolling'] = (data['new_positive_tests_rolling'] / data['new_tests_rolling'])*100
-            #data['testing_positivity_rolling'].tail(14).plot()
-            #plt.show()
             return data['new_tests_rolling'], data['testing_positivity_rolling'].iloc[-1:].values[0]
             
     
@@ -207,7 +203,6 @@ def plot_county(county):
     ax2.set_xlabel('Time')
     ax2.set_ylabel('Number of new tests')
     
-    """Third axis plotting"""
     incidence.incidence.plot(kind ='bar', ax = ax3, width=1)
     ax3.set_xticklabels(incidence.index.strftime('%b %d'))
     for index, label in enumerate(ax3.xaxis.get_ticklabels()):
