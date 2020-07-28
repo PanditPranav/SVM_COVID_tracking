@@ -264,16 +264,23 @@ st.sidebar.markdown("COVID-Local provides basic key metrics against which to ass
 st.sidebar.markdown('For additional information  please contact *epicenter@ucdavis.edu*  https://ohi.vetmed.ucdavis.edu/centers/epicenter-disease-dynamics')
 st.sidebar.markdown('## Select counties of interest')
 CA_counties = confirmed[confirmed.Province_State == 'California'].Admin2.unique().tolist()
+
 COUNTIES_SELECTED = st.sidebar.multiselect('Select counties', CA_counties, default=['Yolo'])
+
 st.sidebar.markdown("One of the key metrics for which data are widely available is the estimate of **daily new cases per 100,000 population**. Here, in following graphics, we will track")
+
 st.sidebar.markdown("(A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)")
 st.sidebar.markdown("(B) Daily incidence (new cases)")
 st.sidebar.markdown("(C) Cumulative cases and deaths")
 st.sidebar.markdown("(D) Daily new tests")
+
 st.sidebar.markdown("Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.")
 st.sidebar.markdown("The data is updated at least once a day or sometimes twice a day in the COVID-19 Data Repository.  https://github.com/CSSEGISandData/COVID-19")
 st.sidebar.markdown("Infection rate, positive test rate, ICU headtoom and contacts traceed from https://covidactnow.org/")
 st.sidebar.text('Report updated on '+ str(today))
+
+
+
 st.markdown(COUNTIES_SELECTED)
 plot_county(COUNTIES_SELECTED)
 
