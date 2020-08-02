@@ -27,7 +27,7 @@ plt.rcParams['xtick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['ytick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['figure.figsize'] = 8, 8
 
-#@st.cache(suppress_st_warning=True)
+@st.cache(suppress_st_warning=True)
 def plot_county(county):
     import numpy as np
     FIPSs = confirmed.groupby(['Province_State', 'Admin2']).FIPS.unique().apply(pd.Series).reset_index()
