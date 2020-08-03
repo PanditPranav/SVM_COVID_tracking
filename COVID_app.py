@@ -27,13 +27,14 @@ plt.rcParams['xtick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['ytick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['figure.figsize'] = 8, 8
 
-@st.cache(suppress_st_warning=True)
+#@st.cache(suppress_st_warning=True)
 def plot_county(county):
     import numpy as np
     FIPSs = confirmed.groupby(['Province_State', 'Admin2']).FIPS.unique().apply(pd.Series).reset_index()
     FIPSs.columns = ['State', 'County', 'FIPS']
     FIPSs['FIPS'].fillna(0, inplace = True)
     FIPSs['FIPS'] = FIPSs.FIPS.astype(int).astype(str).str.zfill(5)
+    @st.cache(ttl=3*60*60)
     def get_testing_data(County):
         if len(County) == 1:
             #print(len(County))
@@ -246,7 +247,7 @@ def plot_county(county):
             f = FIPSs[FIPSs.County == C].FIPS.values[0]
             components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
         
-#@st.cache
+@st.cache(ttl=3*60*60)
 def get_data():
     US_confirmed = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv'
     US_deaths = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv'
