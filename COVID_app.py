@@ -246,7 +246,7 @@ def plot_county(county):
             f = FIPSs[FIPSs.County == C].FIPS.values[0]
             components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
         
-@st.cache
+#@st.cache
 def get_data():
     US_confirmed = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv'
     US_deaths = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv'
