@@ -236,7 +236,7 @@ def plot_county(county):
     if len(county)<6:
         plt.suptitle('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' county ('+ str(today)+')')
     else:
-        plt.suptitle('Current situation of COVID-19 cases in specified region of California ('+ str(today)+')')
+        plt.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     st.pyplot()
     
