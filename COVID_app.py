@@ -238,7 +238,7 @@ def plot_county(county):
     else:
         plt.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    st.pyplot()
+    st.pyplot(fig, clear_figure=False)
     
     import streamlit.components.v1 as components
     if len(county)<=3:
