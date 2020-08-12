@@ -263,10 +263,10 @@ st.sidebar.markdown('**School of Veterinary Medicine   UC Davis**')
 st.sidebar.markdown("## Key COVID-19 Metrics")
 st.sidebar.markdown("COVID-Local provides basic key metrics against which to assess pandemic response and progress toward reopening. See more at https://www.covidlocal.org/metrics/")
 st.sidebar.markdown('For additional information  please contact *epicenter@ucdavis.edu*  https://ohi.vetmed.ucdavis.edu/centers/epicenter-disease-dynamics')
-st.sidebar.markdown('## Select counties of interest')
+st.markdown('## Select counties of interest')
 CA_counties = confirmed[confirmed.Province_State == 'California'].Admin2.unique().tolist()
 
-COUNTIES_SELECTED = st.sidebar.multiselect('Select counties', CA_counties, default=['Yolo'])
+COUNTIES_SELECTED = st.multiselect('Select counties', CA_counties, default=['Yolo'])
 
 st.sidebar.markdown("One of the key metrics for which data are widely available is the estimate of **daily new cases per 100,000 population**. Here, in following graphics, we will track")
 
