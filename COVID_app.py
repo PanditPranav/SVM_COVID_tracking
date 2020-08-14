@@ -30,7 +30,7 @@ plt.rcParams['figure.figsize'] = 8, 8
 
 st.beta_set_page_config(page_title="COVID19: EpiCenter for Disease Dynamics", 
                     page_icon="signal",
-                    layout='wide',
+                    layout='centered',
                     initial_sidebar_state='auto')
 #@st.cache(suppress_st_warning=True)
 def plot_county(county):
