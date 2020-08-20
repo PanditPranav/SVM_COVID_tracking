@@ -251,6 +251,143 @@ def plot_county(county):
             st.text(C)
             f = FIPSs[FIPSs.County == C].FIPS.values[0]
             components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
+            
+def plot_state():
+    import numpy as np
+    #FIPSs = confirmed.groupby(['Province_State', 'Admin2']).FIPS.unique().apply(pd.Series).reset_index()
+    #FIPSs.columns = ['State', 'County', 'FIPS']
+    #FIPSs['FIPS'].fillna(0, inplace = True)
+    #FIPSs['FIPS'] = FIPSs.FIPS.astype(int).astype(str).str.zfill(5)
+    @st.cache(ttl=3*60*60, suppress_st_warning=True)
+    def get_testing_data_state():
+            st.text('Getting testing data for California State')
+            path1 = 'https://data.covidactnow.org/latest/us/states/CA.OBSERVED_INTERVENTION.timeseries.json'
+            df = json.loads(requests.get(path1).text)
+            data = pd.DataFrame.from_dict(df['actualsTimeseries'])
+            data['Date'] = pd.to_datetime(data['date'])
+            data = data.set_index('Date')
+            
+            try:
+                data['new_negative_tests'] = data['cumulativeNegativeTests'].diff()
+                data.loc[(data['new_negative_tests'] < 0)] = np.nan
+            except: 
+                data['new_negative_tests'] = np.nan
+                print('Negative test data not avilable')
+            data['new_negative_tests_rolling'] = data['new_negative_tests'].fillna(0).rolling(14).mean()
+            
+            
+            try:
+                data['new_positive_tests'] = data['cumulativePositiveTests'].diff()
+                data.loc[(data['new_positive_tests'] < 0)] = np.nan
+            except: 
+                data['new_positive_tests'] = np.nan
+                st.text('test data not avilable')
+            data['new_positive_tests_rolling'] = data['new_positive_tests'].fillna(0).rolling(14).mean()
+            data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
+            data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(14).mean()
+            data['testing_positivity_rolling'] = (data['new_positive_tests_rolling'] / data['new_tests_rolling'])*100
+            return data['new_tests_rolling'], data['testing_positivity_rolling'].iloc[-1:].values[0]
+            
+    
+    testing_df, testing_percent = get_testing_data_state()
+    county_confirmed = confirmed[confirmed.Province_State == 'California']
+    #county_confirmed = confirmed[confirmed.Admin2 == county]
+    county_confirmed_time = county_confirmed.drop(county_confirmed.iloc[:, 0:12], axis=1).T #inplace=True, axis=1
+    county_confirmed_time = county_confirmed_time.sum(axis= 1)
+    county_confirmed_time = county_confirmed_time.reset_index()
+    county_confirmed_time.columns = ['date', 'cases']
+    county_confirmed_time['Datetime'] = pd.to_datetime(county_confirmed_time['date'])
+    county_confirmed_time = county_confirmed_time.set_index('Datetime')
+    del county_confirmed_time['date']
+    #print(county_confirmed_time.head())
+    incidence= pd.DataFrame(county_confirmed_time.cases.diff())
+    incidence.columns = ['incidence']
+    
+    #temp_df_time = temp_df.drop(['date'], axis=0).T #inplace=True, axis=1
+    county_deaths = deaths[deaths.Province_State == 'California']
+    population = county_deaths.Population.values.sum()
+    
+    del county_deaths['Population']
+    county_deaths_time = county_deaths.drop(county_deaths.iloc[:, 0:11], axis=1).T #inplace=True, axis=1
+    county_deaths_time = county_deaths_time.sum(axis= 1)
+    
+    county_deaths_time = county_deaths_time.reset_index()
+    county_deaths_time.columns = ['date', 'deaths']
+    county_deaths_time['Datetime'] = pd.to_datetime(county_deaths_time['date'])
+    county_deaths_time = county_deaths_time.set_index('Datetime')
+    del county_deaths_time['date']
+    
+    cases_per100k  = ((county_confirmed_time)*100000/population)
+    cases_per100k.columns = ['cases per 100K']
+    cases_per100k['rolling average'] = cases_per100k['cases per 100K'].rolling(7).mean()
+    
+    deaths_per100k  = ((county_deaths_time)*100000/population)
+    deaths_per100k.columns = ['deaths per 100K']
+    deaths_per100k['rolling average'] = deaths_per100k['deaths per 100K'].rolling(7).mean()
+    
+    
+    incidence['rolling_incidence'] = incidence.incidence.rolling(7).mean()
+    metric = (incidence['rolling_incidence']*100000/population).iloc[[-1]]
+    st.text('Number of new cases averaged over last seven days = %s' %'{:,.1f}'.format(metric.values[0]))
+    st.text("Population under consideration = %s"% '{:,.0f}'.format(population))
+    st.text("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
+    st.text("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
+    st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
+    #print(county_deaths_time.tail(1).values[0])
+    #print(cases_per100k.head())
+    fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
+    #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
+    
+    county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
+    county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
+    ax1.set_xlabel('Time') 
+    ax1.set_ylabel('Number of individuals')
+    
+    
+    
+    testing_df.plot(ax = ax2,  lw=4, color = '#377eb8')
+    #cases_per100k['cases per 100K'].plot(ax = ax2,  lw=4, linestyle='--', color = '#377eb8')
+    #cases_per100k['rolling average'].plot(ax = ax2, lw=4, color = '#377eb8')
+    
+    #deaths_per100k['deaths per 100K'].plot(ax = ax2,  lw=4, linestyle='--', color = '#e41a1c')
+    #deaths_per100k['rolling average'].plot(ax = ax2, lw=4, color = '#e41a1c')
+    
+    ax2.set_xlabel('Time')
+    ax2.set_ylabel('Number of new tests')
+    
+    incidence.incidence.plot(kind ='bar', ax = ax3, width=1)
+    ax3.set_xticklabels(incidence.index.strftime('%b %d'))
+    for index, label in enumerate(ax3.xaxis.get_ticklabels()):
+        if index % 7 != 0:
+            label.set_visible(False)
+    for index, label in enumerate(ax3.xaxis.get_major_ticks()):
+        if index % 7 != 0:
+            label.set_visible(False)
+    
+    
+    
+    
+    (incidence['rolling_incidence']*100000/population).plot(ax = ax4, lw = 4)
+    ax4.axhline(y = 5,  linewidth=2, color='r', ls = '--', label="Threshold for Phase 2:\nInitial re-opening")
+    ax4.axhline(y = 1,  linewidth=2, color='b', ls = '--', label="Threshold for Phase 3:\nEconomic recovery")
+    ax4.legend(fontsize = 10)
+    if (incidence['rolling_incidence']*100000/population).max()< 5.5:
+        ax4.set_ylim(0,5.5)
+    
+    #print(metric)
+    
+    #incidence['rolling_incidence']
+    #ax3.grid(which='both', alpha=1)
+    ax1.set_title('(C) Cumulative cases and deaths')
+    ax2.set_title('(D) Daily new tests')
+    ax3.set_title('(B) Daily incidence (new cases)')
+    ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
+    ax3.set_ylabel('Number of individuals')
+    ax4.set_ylabel('per 100 thousand')
+    plt.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    st.pyplot(fig)
+    
         
 @st.cache(ttl=3*60*60, suppress_st_warning=True)
 def get_data():
@@ -304,7 +441,7 @@ st.markdown("## Solano")
 plot_county(['Solano'])
 
 st.markdown("## State of California")
-plot_county(confirmed[confirmed.Province_State == 'California'].Admin2.unique().tolist())
+plot_state()
 
 
 
