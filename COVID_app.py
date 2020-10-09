@@ -13,6 +13,7 @@ import json
 from pandas.io.json import json_normalize
 import pandas as pd
 import requests
+from matplotlib.figure import Figure
 today = date.today()
 #sns.set_style('whitegrid')
 style.use('fivethirtyeight')
@@ -26,6 +27,22 @@ plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
 plt.rcParams['xtick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['ytick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['figure.figsize'] = 8, 8
+
+# Use the non-interactive Agg backend, which is recommended as a
+# thread-safe backend.
+# See https://matplotlib.org/3.3.2/faq/howto_faq.html#working-with-threads.
+import matplotlib as mpl
+mpl.use("agg")
+
+##############################################################################
+# Workaround for the limited multi-threading support in matplotlib.
+# Per the docs, we will avoid using `matplotlib.pyplot` for figures:
+# https://matplotlib.org/3.3.2/faq/howto_faq.html#how-to-use-matplotlib-in-a-web-application-server.
+# Moreover, we will guard all operations on the figure instances by the
+# class-level lock in the Agg backend.
+##############################################################################
+from matplotlib.backends.backend_agg import RendererAgg
+_lock = RendererAgg.lock
 
 
 #st.beta_set_page_config(page_title="COVID19: EpiCenter for Disease Dynamics", 
@@ -189,8 +206,9 @@ def plot_county(county):
     st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
-    fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
+    fig = Figure(figsize=(12,8))
     #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
+    ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
     
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
     county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
@@ -238,12 +256,14 @@ def plot_county(county):
     ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
     ax3.set_ylabel('Number of individuals')
     ax4.set_ylabel('per 100 thousand')
-    if len(county)<6:
-        plt.suptitle('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' county ('+ str(today)+')')
-    else:
-        plt.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    st.pyplot(fig)
+
+    with _lock:
+        if len(county)<6:
+            fig.suptitle('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' county ('+ str(today)+')')
+        else:
+            fig.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
+        fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+        st.pyplot(fig)
     
     import streamlit.components.v1 as components
     if len(county)<=3:
@@ -335,8 +355,9 @@ def plot_state():
     st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
-    fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
+    fig = Figure(figsize=(12,8))
     #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
+    ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
     
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
     county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
@@ -384,9 +405,10 @@ def plot_state():
     ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
     ax3.set_ylabel('Number of individuals')
     ax4.set_ylabel('per 100 thousand')
-    plt.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    st.pyplot(fig)
+    with _lock:
+        fig.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
+        fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+        st.pyplot(fig)
     
         
 @st.cache(ttl=3*60*60, suppress_st_warning=True)
