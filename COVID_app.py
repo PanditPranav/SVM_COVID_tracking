@@ -13,6 +13,7 @@ import json
 from pandas.io.json import json_normalize
 import pandas as pd
 import requests
+from matplotlib.figure import Figure
 today = date.today()
 #sns.set_style('whitegrid')
 style.use('fivethirtyeight')
@@ -189,8 +190,10 @@ def plot_county(county):
     st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
-    fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
+    #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
     #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
+    fig = Figure(figsize=(12,8))
+    ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
     
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
     county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
@@ -335,8 +338,10 @@ def plot_state():
     st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
-    fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
+    # fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
     #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
+    fig = Figure(figsize=(12,8))
+    ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
     
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
     county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
