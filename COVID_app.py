@@ -28,6 +28,9 @@ plt.rcParams['xtick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['ytick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['figure.figsize'] = 8, 8
 
+from matplotlib.backends.backend_agg import RendererAgg
+_lock = RendererAgg.lock
+
 
 #st.beta_set_page_config(page_title="COVID19: EpiCenter for Disease Dynamics", 
 #                    page_icon="signal",
@@ -242,12 +245,13 @@ def plot_county(county):
     ax3.set_ylabel('Number of individuals')
     ax4.set_ylabel('per 100 thousand')
 
-    if len(county)<6:
-        fig.suptitle('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' county ('+ str(today)+')')
-    else:
-        fig.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
-    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    st.pyplot(fig)
+    with _lock:
+        if len(county)<6:
+            fig.suptitle('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' county ('+ str(today)+')')
+        else:
+            fig.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
+        fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+        st.pyplot(fig)
     
     import streamlit.components.v1 as components
     if len(county)<=3:
@@ -390,9 +394,10 @@ def plot_state():
     ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
     ax3.set_ylabel('Number of individuals')
     ax4.set_ylabel('per 100 thousand')
-    fig.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
-    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    st.pyplot(fig)
+    with _lock:
+        fig.suptitle('Current situation of COVID-19 cases in California ('+ str(today)+')')
+        fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+        st.pyplot(fig)
     
         
 @st.cache(ttl=3*60*60, suppress_st_warning=True)
