@@ -206,9 +206,8 @@ def plot_county(county):
     st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
-    #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
-    #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
     fig = Figure(figsize=(12,8))
+    #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
     ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
     
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
@@ -356,9 +355,8 @@ def plot_state():
     st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
-    # fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
-    #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
     fig = Figure(figsize=(12,8))
+    #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
     ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
     
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
