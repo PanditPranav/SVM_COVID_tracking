@@ -400,7 +400,7 @@ def plot_state():
     #incidence['rolling_incidence']
     #ax3.grid(which='both', alpha=1)
     ax1.set_title('(C) Cumulative cases and deaths')
-    ax2.set_title('(D) Daily new tests')
+    ax2.set_title('(D) Daily new tests*')
     ax3.set_title('(B) Daily incidence (new cases)')
     ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
     ax3.set_ylabel('Number of individuals')
