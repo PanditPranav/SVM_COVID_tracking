@@ -203,7 +203,7 @@ def plot_county(county):
     st.text("Population under consideration = %s"% '{:,.0f}'.format(population))
     st.text("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
     st.text("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
-    st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
+    st.text("% test positivity (14 day average)*= "+"%.2f" % testing_percent)
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
     fig = Figure(figsize=(12,8))
@@ -437,11 +437,12 @@ st.sidebar.markdown("One of the key metrics for which data are widely available 
 st.sidebar.markdown("(A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)")
 st.sidebar.markdown("(B) Daily incidence (new cases)")
 st.sidebar.markdown("(C) Cumulative cases and deaths")
-st.sidebar.markdown("(D) Daily new tests")
+st.sidebar.markdown("(D) Daily new tests*")
 
 st.sidebar.markdown("Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.")
 st.sidebar.markdown("The data is updated at least once a day or sometimes twice a day in the COVID-19 Data Repository.  https://github.com/CSSEGISandData/COVID-19")
 st.sidebar.markdown("Infection rate, positive test rate, ICU headtoom and contacts traceed from https://covidactnow.org/")
+st.sidebar.markdown("*Calculation of % positive tests depend on consistent reporting of county-wise total number of tests performed routinely. Rolling averages and proportions are not calculated if reporting is inconsistent over a period of 14 days.")
 st.sidebar.text('Report updated on '+ str(today))
 
 
