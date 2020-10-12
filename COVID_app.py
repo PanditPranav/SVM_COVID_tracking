@@ -37,7 +37,7 @@ st.beta_set_page_config(
 
 sidebar_selection = st.sidebar.radio(
     'Select data:',
-    ['Select Counties','Tri-County Area','California'],
+    ['Tri-County Area', 'Select Counties', 'California'],
 )
 
 @st.cache(ttl=3*60*60, suppress_st_warning=True)
