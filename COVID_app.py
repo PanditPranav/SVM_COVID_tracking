@@ -2,7 +2,10 @@ import json
 from datetime import date
 from urllib.request import urlopen
 
-import matplotlib.dates as dates
+import matplotlib as mpl
+from matplotlib import dates as dates
+from matplotlib.figure import Figure
+from matplotlib import style as style
 import numpy as np
 import pandas as pd
 import requests
@@ -14,9 +17,25 @@ from matplotlib.dates import DateFormatter, MonthLocator, WeekdayLocator
 from matplotlib.ticker import NullFormatter
 from pandas.io.json import json_normalize
 
+# Use the non-interactive Agg backend, which is recommended as a
+# thread-safe backend.
+# See https://matplotlib.org/3.3.2/faq/howto_faq.html#working-with-threads.
+mpl.use("agg")
+
+##############################################################################
+# Workaround for the limited multi-threading support in matplotlib.
+# Per the docs, we will avoid using `matplotlib.pyplot` for figures:
+# https://matplotlib.org/3.3.2/faq/howto_faq.html#how-to-use-matplotlib-in-a-web-application-server.
+# Moreover, we will guard all operations on the figure instances by the
+# class-level lock in the Agg backend.
+##############################################################################
+from matplotlib.backends.backend_agg import RendererAgg
+
+_lock = RendererAgg.lock
+
 today = date.today()
 #sns.set_style('whitegrid')
-# style.use('fivethirtyeight')
+style.use('fivethirtyeight')
 plt.rcParams['lines.linewidth'] = 1
 dpi = 1000
 plt.rcParams['font.size'] = 13
@@ -76,7 +95,7 @@ def get_testing_data(county):
             data.loc[(data['new_positive_tests'] < 0)] = np.nan
         except:
             data['new_positive_tests'] = np.nan
-            st.text('test data not avilable')
+            st.text('test data not available')
 
         data['new_positive_tests_rolling'] = data['new_positive_tests'].fillna(0).rolling(14).mean()
         data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
@@ -99,14 +118,14 @@ def get_testing_data(county):
                 data.loc[(data['new_negative_tests'] < 0)] = np.nan
             except:
                 data['new_negative_tests'] = np.nan
-                #print('Negative test data not avilable')
+                #print('Negative test data not available')
 
             try:
                 data['new_positive_tests'] = data['cumulativePositiveTests'].diff()
                 data.loc[(data['new_positive_tests'] < 0)] = np.nan
             except:
                 data['new_positive_tests'] = np.nan
-                #print('Negative test data not avilable')
+                #print('Negative test data not available')
             data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
 
             new_positive_tests.append(data['new_positive_tests'])
@@ -134,7 +153,7 @@ def get_testing_data(county):
             data.loc[(data['new_negative_tests'] < 0)] = np.nan
         except:
             data['new_negative_tests'] = np.nan
-            print('Negative test data not avilable')
+            print('Negative test data not available')
         data['new_negative_tests_rolling'] = data['new_negative_tests'].fillna(0).rolling(14).mean()
 
 
@@ -143,13 +162,12 @@ def get_testing_data(county):
             data.loc[(data['new_positive_tests'] < 0)] = np.nan
         except:
             data['new_positive_tests'] = np.nan
-            st.text('test data not avilable')
+            st.text('test data not available')
         data['new_positive_tests_rolling'] = data['new_positive_tests'].fillna(0).rolling(14).mean()
         data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
         data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(14).mean()
         data['testing_positivity_rolling'] = (data['new_positive_tests_rolling'] / data['new_tests_rolling'])*100
         return data['new_tests_rolling'], data['testing_positivity_rolling'].iloc[-1:].values[0]
-
 
 
 def plot_county(county):
@@ -190,14 +208,13 @@ def plot_county(county):
     incidence['rolling_incidence'] = incidence.incidence.rolling(7).mean()
     metric = (incidence['rolling_incidence'] * 100000 / population).iloc[[-1]]
 
-    fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
+    fig = Figure(linewidth=1, edgecolor="#cccccc", figsize=(12,8))
+    ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
 
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
     county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
     ax1.set_xlabel('Time')
     ax1.set_ylabel('Number of individuals')
-
-
 
     testing_df.plot(ax = ax2,  lw=4, color = '#377eb8')
     #cases_per100k['cases per 100K'].plot(ax = ax2,  lw=4, linestyle='--', color = '#377eb8')
@@ -226,14 +243,11 @@ def plot_county(county):
         ax4.set_ylim(0,5.5)
 
     ax1.set_title('(C) Cumulative cases and deaths')
-    ax2.set_title('(D) Daily new tests')
+    ax2.set_title('(D) Daily new tests*')
     ax3.set_title('(B) Daily incidence (new cases)')
     ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
     ax3.set_ylabel('Number of individuals')
     ax4.set_ylabel('per 100 thousand')
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.figure(linewidth=1, edgecolor="#cccccc")
-
 
     if len(county) == 1:
         st.subheader('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' county ('+ str(today)+')')
@@ -246,7 +260,9 @@ def plot_county(county):
 
     with c1:
         st.write('')
-        st.pyplot(fig)
+        with _lock:
+            fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+            st.pyplot(fig)
 
     if len(county)==1:
         C = county[0]
@@ -258,15 +274,15 @@ def plot_county(county):
         
         a1, a2, a3 = st.beta_columns(3)     
         with a1:
-            st.text('# new cases averaged over last 7 days = %s' %'{:,.1f}'.format(metric.values[0]))
-            st.text("Population under consideration = %s"% '{:,.0f}'.format(population))
+            st.markdown('New cases averaged over last 7 days = %s' %'{:,.1f}'.format(metric.values[0]))
+            st.markdown("Population under consideration = %s"% '{:,.0f}'.format(population))
         
         with a2:
-            st.text("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
-            st.text("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
+            st.markdown("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
+            st.markdown("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
         
         with a3:
-            st.text("% test positivity (14 day average)= "+"%.2f" % testing_percent)
+            st.markdown("% test positivity (14 day average)* = "+"%.2f" % testing_percent)
     elif len(county)<=3:
         with c2:
             st.write('')
@@ -275,7 +291,7 @@ def plot_county(county):
             st.markdown("Population under consideration = %s"% '{:,.0f}'.format(population))
             st.markdown("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
             st.markdown("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
-            st.markdown("% test positivity (14 day average)= "+"%.2f" % testing_percent)
+            st.markdown("% test positivity (14 day average)* = "+"%.2f" % testing_percent)
         with c3:
             columns = st.beta_columns(len(county))
             for idx, C in enumerate(county):
@@ -306,7 +322,7 @@ def plot_state():
                 data.loc[(data['new_negative_tests'] < 0)] = np.nan
             except:
                 data['new_negative_tests'] = np.nan
-                print('Negative test data not avilable')
+                print('Negative test data not available')
             data['new_negative_tests_rolling'] = data['new_negative_tests'].fillna(0).rolling(14).mean()
 
 
@@ -315,7 +331,7 @@ def plot_state():
                 data.loc[(data['new_positive_tests'] < 0)] = np.nan
             except:
                 data['new_positive_tests'] = np.nan
-                st.text('test data not avilable')
+                st.text('test data not available')
             data['new_positive_tests_rolling'] = data['new_positive_tests'].fillna(0).rolling(14).mean()
             data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
             data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(14).mean()
@@ -365,7 +381,8 @@ def plot_state():
 
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
-    fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(12,8))
+    fig = Figure(linewidth=1, edgecolor="#cccccc", figsize=(12,8))
+    ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
     #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
 
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
@@ -394,9 +411,6 @@ def plot_state():
         if index % 7 != 0:
             label.set_visible(False)
 
-
-
-
     (incidence['rolling_incidence']*100000/population).plot(ax = ax4, lw = 4)
     ax4.axhline(y = 5,  linewidth=2, color='r', ls = '--', label="Threshold for Phase 2:\nInitial re-opening")
     ax4.axhline(y = 1,  linewidth=2, color='b', ls = '--', label="Threshold for Phase 3:\nEconomic recovery")
@@ -404,18 +418,12 @@ def plot_state():
     if (incidence['rolling_incidence']*100000/population).max()< 5.5:
         ax4.set_ylim(0,5.5)
 
-    #print(metric)
-
-    #incidence['rolling_incidence']
-    #ax3.grid(which='both', alpha=1)
     ax1.set_title('(C) Cumulative cases and deaths')
     ax2.set_title('(D) Daily new tests')
     ax3.set_title('(B) Daily incidence (new cases)')
     ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
     ax3.set_ylabel('Number of individuals')
     ax4.set_ylabel('per 100 thousand')
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.figure(linewidth=1, edgecolor="#cccccc")
 
     st.subheader('Current situation of COVID-19 cases in California ('+ str(today)+')')
 
@@ -423,7 +431,9 @@ def plot_state():
 
     with c1:
         st.write('')
-        st.pyplot(fig)
+        with _lock:
+            fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+            st.pyplot(fig)
 
     with c2:
         # st.text('# new cases averaged over last 7 days = %s' %'{:,.1f}'.format(metric.values[0]))
@@ -449,8 +459,8 @@ with t2:
 st.write("")
 st.markdown("""
 COVID-Local provides basic key metrics against which to assess pandemic response and progress toward reopening.
-See more at https://www.covidlocal.org/metrics/
-For additional information please contact *epicenter@ucdavis.edu* or visit https://ohi.vetmed.ucdavis.edu/centers/epicenter-disease-dynamics""")
+See more at https://www.covidlocal.org/metrics/.
+For additional information please contact *epicenter@ucdavis.edu* or visit https://ohi.vetmed.ucdavis.edu/centers/epicenter-disease-dynamics.""")
 
 
 
@@ -459,6 +469,11 @@ if sidebar_selection == 'Select Counties':
     CA_counties = confirmed[confirmed.Province_State == 'California'].Admin2.unique().tolist()
     COUNTIES_SELECTED = st.multiselect('', CA_counties, default=['Yolo'])
     plot_county(COUNTIES_SELECTED)
+
+    for c in COUNTIES_SELECTED:
+        expander = st.beta_expander(f"Details for {c} County")
+        with expander:
+            plot_county([c])
 
 if sidebar_selection == 'Tri-County Area':
     st.markdown('## Combined Results for Tri-County Area')
@@ -479,15 +494,17 @@ population**.
 
 Here, in following graphics, we will track:
 
-(A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)")
-(B) Daily incidence (new cases)")
-(C) Cumulative cases and deaths")
-(D) Daily new tests")
+(A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)
+(B) Daily incidence (new cases)
+(C) Cumulative cases and deaths
+(D) Daily new tests*
 
 Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.
 The data is updated at least once a day or sometimes twice a day in the [COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).
 
-Infection rate, positive test rate, ICU headtoom and contacts traceed from https://covidactnow.org/.
+Infection rate, positive test rate, ICU headroom and contacts traced from https://covidactnow.org/.
+
+*Calculation of % positive tests depends on consistent reporting of county-wise total number of tests performed routinely. Rolling averages and proportions are not calculated if reporting is inconsistent over a period of 14 days.
 
 *Report updated on {str(today)}.*
 """)
