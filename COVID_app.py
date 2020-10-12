@@ -1,16 +1,17 @@
-import streamlit as st
-import pandas as pd
-from matplotlib import pyplot as plt
-import seaborn as sns
-from datetime import date
-import matplotlib.dates as dates
-from matplotlib.dates import MonthLocator, DateFormatter, WeekdayLocator
-from matplotlib.ticker import NullFormatter
-from urllib.request import urlopen
 import json
-from pandas.io.json import json_normalize
+from datetime import date
+from urllib.request import urlopen
+
+import matplotlib.dates as dates
 import pandas as pd
 import requests
+import seaborn as sns
+import streamlit as st
+from matplotlib import pyplot as plt
+from matplotlib.dates import DateFormatter, MonthLocator, WeekdayLocator
+from matplotlib.ticker import NullFormatter
+from pandas.io.json import json_normalize
+
 today = date.today()
 #sns.set_style('whitegrid')
 # style.use('fivethirtyeight')
@@ -298,6 +299,7 @@ def plot_county(county):
 
 def plot_state():
     import numpy as np
+
     #FIPSs = confirmed.groupby(['Province_State', 'Admin2']).FIPS.unique().apply(pd.Series).reset_index()
     #FIPSs.columns = ['State', 'County', 'FIPS']
     #FIPSs['FIPS'].fillna(0, inplace = True)
