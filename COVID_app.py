@@ -1,6 +1,7 @@
 import json
 from datetime import date
 from urllib.request import urlopen
+import time
 
 import matplotlib as mpl
 from matplotlib import dates as dates
@@ -16,6 +17,15 @@ from matplotlib import pyplot as plt
 from matplotlib.dates import DateFormatter, MonthLocator, WeekdayLocator
 from matplotlib.ticker import NullFormatter
 from pandas.io.json import json_normalize
+
+import cProfile, pstats, io
+from pstats import SortKey
+pr = cProfile.Profile()
+pr.enable()
+
+import altair as alt
+
+print("hello, world!")
 
 # Use the non-interactive Agg backend, which is recommended as a
 # thread-safe backend.
@@ -56,7 +66,7 @@ st.beta_set_page_config(
 
 sidebar_selection = st.sidebar.radio(
     'Select data:',
-    ['California', 'Select Counties', 'Sacramento Tri-County Area'],
+    ['Select Counties', 'California', 'Sacramento Tri-County Area'],
 )
 
 @st.cache(ttl=3*60*60, suppress_st_warning=True)
@@ -208,46 +218,46 @@ def plot_county(county):
     incidence['rolling_incidence'] = incidence.incidence.rolling(7).mean()
     metric = (incidence['rolling_incidence'] * 100000 / population).iloc[[-1]]
 
-    fig = Figure(linewidth=1, edgecolor="#cccccc", figsize=(12,8))
-    ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
+    # fig = Figure(linewidth=1, edgecolor="#cccccc", figsize=(12,8))
+    # ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
 
-    county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
-    county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
-    ax1.set_xlabel('Time')
-    ax1.set_ylabel('Number of individuals')
+    # county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
+    # county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
+    # ax1.set_xlabel('Time')
+    # ax1.set_ylabel('Number of individuals')
 
-    testing_df.plot(ax = ax2,  lw=4, color = '#377eb8')
+    # testing_df.plot(ax = ax2,  lw=4, color = '#377eb8')
     #cases_per100k['cases per 100K'].plot(ax = ax2,  lw=4, linestyle='--', color = '#377eb8')
     #cases_per100k['rolling average'].plot(ax = ax2, lw=4, color = '#377eb8')
 
     #deaths_per100k['deaths per 100K'].plot(ax = ax2,  lw=4, linestyle='--', color = '#e41a1c')
     #deaths_per100k['rolling average'].plot(ax = ax2, lw=4, color = '#e41a1c')
 
-    ax2.set_xlabel('Time')
-    ax2.set_ylabel('Number of new tests')
+    # ax2.set_xlabel('Time')
+    # ax2.set_ylabel('Number of new tests')
 
-    incidence.incidence.plot(kind ='bar', ax = ax3, width=1)
-    ax3.set_xticklabels(incidence.index.strftime('%b %d'))
-    for index, label in enumerate(ax3.xaxis.get_ticklabels()):
-        if index % 7 != 0:
-            label.set_visible(False)
-    for index, label in enumerate(ax3.xaxis.get_major_ticks()):
-        if index % 7 != 0:
-            label.set_visible(False)
+    # incidence.incidence.plot(kind ='bar', ax = ax3, width=1)
+    # ax3.set_xticklabels(incidence.index.strftime('%b %d'))
+    # for index, label in enumerate(ax3.xaxis.get_ticklabels()):
+    #     if index % 7 != 0:
+    #         label.set_visible(False)
+    # for index, label in enumerate(ax3.xaxis.get_major_ticks()):
+    #     if index % 7 != 0:
+    #         label.set_visible(False)
 
-    (incidence['rolling_incidence']*100000/population).plot(ax = ax4, lw = 4)
-    ax4.axhline(y = 5,  linewidth=2, color='r', ls = '--', label="Threshold for Phase 2:\nInitial re-opening")
-    ax4.axhline(y = 1,  linewidth=2, color='b', ls = '--', label="Threshold for Phase 3:\nEconomic recovery")
-    ax4.legend(fontsize = 10)
-    if (incidence['rolling_incidence']*100000/population).max()< 5.5:
-        ax4.set_ylim(0,5.5)
+    # (incidence['rolling_incidence']*100000/population).plot(ax = ax4, lw = 4)
+    # ax4.axhline(y = 5,  linewidth=2, color='r', ls = '--', label="Threshold for Phase 2:\nInitial re-opening")
+    # ax4.axhline(y = 1,  linewidth=2, color='b', ls = '--', label="Threshold for Phase 3:\nEconomic recovery")
+    # ax4.legend(fontsize = 10)
+    # if (incidence['rolling_incidence']*100000/population).max()< 5.5:
+    #     ax4.set_ylim(0,5.5)
 
-    ax1.set_title('(C) Cumulative cases and deaths')
-    ax2.set_title('(D) Daily new tests*')
-    ax3.set_title('(B) Daily incidence (new cases)')
-    ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
-    ax3.set_ylabel('Number of individuals')
-    ax4.set_ylabel('per 100 thousand')
+    # ax1.set_title('(C) Cumulative cases and deaths')
+    # ax2.set_title('(D) Daily new tests*')
+    # ax3.set_title('(B) Daily incidence (new cases)')
+    # ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
+    # ax3.set_ylabel('Number of individuals')
+    # ax4.set_ylabel('per 100 thousand')
 
     if len(county) == 1:
         st.subheader('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' county ('+ str(today)+')')
@@ -255,34 +265,32 @@ def plot_county(county):
         st.subheader('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' counties ('+ str(today)+')')
 
 
-    c1, _, c2 = st.beta_columns((8, .25, 4))
-    c3 = st.beta_container()
+    # c3 = st.beta_container()
+    # c1, _, c2 = st.beta_columns((8, .25, 4))
+    
+    c1 = st.beta_container()
+    c2 = st.beta_container()
 
-    with c1:
-        st.write('')
-        with _lock:
-            fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-            st.pyplot(fig)
+    # with c1:
+    #     st.write('')
+    #     with _lock:
+    #         fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    #         st.pyplot(fig)
 
     if len(county)==1:
         C = county[0]
         with c2:
-            st.write('')
-            st.write('')
-            f = FIPSs[FIPSs.County == C].FIPS.values[0]
-            components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
-        
-        a1, a2, a3 = st.beta_columns(3)     
-        with a1:
-            st.markdown('New cases averaged over last 7 days = %s' %'{:,.1f}'.format(metric.values[0]))
-            st.markdown("Population under consideration = %s"% '{:,.0f}'.format(population))
-        
-        with a2:
-            st.markdown("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
-            st.markdown("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
-        
-        with a3:
-            st.markdown("% test positivity (14 day average)* = "+"%.2f" % testing_percent)
+            a1, _, a2 = st.beta_columns((3.9, 0.2, 3.9))     
+            with a1:
+                f = FIPSs[FIPSs.County == C].FIPS.values[0]
+                components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
+                
+            with a2:
+                st.markdown('New cases averaged over last 7 days = %s' %'{:,.1f}'.format(metric.values[0]))
+                st.markdown("Population under consideration = %s"% '{:,.0f}'.format(population))
+                st.markdown("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
+                st.markdown("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
+                st.markdown("% test positivity (14 day average)* = "+"%.2f" % testing_percent)
     elif len(county) <= 3:
         with c2:
             st.write('')
@@ -300,6 +308,49 @@ def plot_county(county):
                     st.write('')
                     f = FIPSs[FIPSs.County == C].FIPS.values[0]
                     components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
+
+    ### Experiment with Altair instead of Matplotlib.
+    with c1:
+        a1, _, a2 = st.beta_columns((3.9, 0.2, 3.9))
+        testing_df = testing_df.to_frame().reset_index()
+        base = alt.Chart(testing_df).mark_line().encode(
+            x="Date",
+            y="new_tests_rolling",
+        )
+        with a1:
+            st.altair_chart(base, use_container_width=True)
+
+        # (incidence['rolling_incidence']*100000/population).plot(ax = ax4, lw = 4)
+        incidence = incidence.reset_index()
+        incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
+        ax4 = alt.Chart(incidence).mark_line().encode(
+            x="Datetime",
+            y="nomalized_rolling_incidence",
+        )
+        with a2:
+            st.altair_chart(ax4, use_container_width=True)
+
+        a3, _, a4 = st.beta_columns((3.9, 0.2, 3.9))
+        ax3 = alt.Chart(incidence).mark_bar().encode(
+            x="Datetime",
+            y="incidence",
+        )
+        with a3:
+            st.altair_chart(ax3, use_container_width=True)
+
+        county_confirmed_time = county_confirmed_time.reset_index()
+        county_deaths_time = county_deaths_time.reset_index()
+        cases_and_deaths = county_confirmed_time.set_index("Datetime").join(county_deaths_time.set_index("Datetime"))
+        cases_and_deaths = cases_and_deaths.reset_index()
+        base = alt.Chart(cases_and_deaths)
+        c = base.mark_line().encode(
+            x="Datetime",
+            y="cases"
+        )
+        d = base.mark_line().encode(x="Datetime", y="deaths")
+        with a4:
+            st.altair_chart(c + d)
+
 
 def plot_state():
     #FIPSs = confirmed.groupby(['Province_State', 'Admin2']).FIPS.unique().apply(pd.Series).reset_index()
@@ -505,3 +556,14 @@ Infection rate, positive test rate, ICU headroom and contacts traced from https:
 
 *Report updated on {str(today)}.*
 """)
+
+
+pr.disable()
+s = io.StringIO()
+sortby = SortKey.CUMULATIVE
+ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+ps.print_stats()
+# print(s.getvalue())
+ts = int(time.time())
+with open(f"perf_{ts}.txt", "w") as f:
+    f.write(s.getvalue())
