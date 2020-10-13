@@ -302,8 +302,6 @@ def plot_county(county):
                     components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
 
 def plot_state():
-    import numpy as np
-
     #FIPSs = confirmed.groupby(['Province_State', 'Admin2']).FIPS.unique().apply(pd.Series).reset_index()
     #FIPSs.columns = ['State', 'County', 'FIPS']
     #FIPSs['FIPS'].fillna(0, inplace = True)
@@ -336,54 +334,52 @@ def plot_state():
             data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
             data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(14).mean()
             data['testing_positivity_rolling'] = (data['new_positive_tests_rolling'] / data['new_tests_rolling'])*100
-            return data['new_tests_rolling'], data['testing_positivity_rolling'].iloc[-1:].values[0]
+            # return data['new_tests_rolling'], data['testing_positivity_rolling'].iloc[-1:].values[0]
+            testing_df, testing_percent = data['new_tests_rolling'], data['testing_positivity_rolling'].iloc[-1:].values[0]
+            county_confirmed = confirmed[confirmed.Province_State == 'California']
+            #county_confirmed = confirmed[confirmed.Admin2 == county]
+            county_confirmed_time = county_confirmed.drop(county_confirmed.iloc[:, 0:12], axis=1).T #inplace=True, axis=1
+            county_confirmed_time = county_confirmed_time.sum(axis= 1)
+            county_confirmed_time = county_confirmed_time.reset_index()
+            county_confirmed_time.columns = ['date', 'cases']
+            county_confirmed_time['Datetime'] = pd.to_datetime(county_confirmed_time['date'])
+            county_confirmed_time = county_confirmed_time.set_index('Datetime')
+            del county_confirmed_time['date']
+            #print(county_confirmed_time.head())
+            incidence = pd.DataFrame(county_confirmed_time.cases.diff())
+            incidence.columns = ['incidence']
 
+            #temp_df_time = temp_df.drop(['date'], axis=0).T #inplace=True, axis=1
+            county_deaths = deaths[deaths.Province_State == 'California']
+            population = county_deaths.Population.values.sum()
 
-    testing_df, testing_percent = get_testing_data_state()
-    county_confirmed = confirmed[confirmed.Province_State == 'California']
-    #county_confirmed = confirmed[confirmed.Admin2 == county]
-    county_confirmed_time = county_confirmed.drop(county_confirmed.iloc[:, 0:12], axis=1).T #inplace=True, axis=1
-    county_confirmed_time = county_confirmed_time.sum(axis= 1)
-    county_confirmed_time = county_confirmed_time.reset_index()
-    county_confirmed_time.columns = ['date', 'cases']
-    county_confirmed_time['Datetime'] = pd.to_datetime(county_confirmed_time['date'])
-    county_confirmed_time = county_confirmed_time.set_index('Datetime')
-    del county_confirmed_time['date']
-    #print(county_confirmed_time.head())
-    incidence= pd.DataFrame(county_confirmed_time.cases.diff())
-    incidence.columns = ['incidence']
+            del county_deaths['Population']
+            county_deaths_time = county_deaths.drop(county_deaths.iloc[:, 0:11], axis=1).T #inplace=True, axis=1
+            county_deaths_time = county_deaths_time.sum(axis= 1)
 
-    #temp_df_time = temp_df.drop(['date'], axis=0).T #inplace=True, axis=1
-    county_deaths = deaths[deaths.Province_State == 'California']
-    population = county_deaths.Population.values.sum()
+            county_deaths_time = county_deaths_time.reset_index()
+            county_deaths_time.columns = ['date', 'deaths']
+            county_deaths_time['Datetime'] = pd.to_datetime(county_deaths_time['date'])
+            county_deaths_time = county_deaths_time.set_index('Datetime')
+            del county_deaths_time['date']
 
-    del county_deaths['Population']
-    county_deaths_time = county_deaths.drop(county_deaths.iloc[:, 0:11], axis=1).T #inplace=True, axis=1
-    county_deaths_time = county_deaths_time.sum(axis= 1)
+            cases_per100k  = ((county_confirmed_time)*100000/population)
+            cases_per100k.columns = ['cases per 100K']
+            cases_per100k['rolling average'] = cases_per100k['cases per 100K'].rolling(7).mean()
 
-    county_deaths_time = county_deaths_time.reset_index()
-    county_deaths_time.columns = ['date', 'deaths']
-    county_deaths_time['Datetime'] = pd.to_datetime(county_deaths_time['date'])
-    county_deaths_time = county_deaths_time.set_index('Datetime')
-    del county_deaths_time['date']
+            deaths_per100k  = ((county_deaths_time)*100000/population)
+            deaths_per100k.columns = ['deaths per 100K']
+            deaths_per100k['rolling average'] = deaths_per100k['deaths per 100K'].rolling(7).mean()
 
-    cases_per100k  = ((county_confirmed_time)*100000/population)
-    cases_per100k.columns = ['cases per 100K']
-    cases_per100k['rolling average'] = cases_per100k['cases per 100K'].rolling(7).mean()
-
-    deaths_per100k  = ((county_deaths_time)*100000/population)
-    deaths_per100k.columns = ['deaths per 100K']
-    deaths_per100k['rolling average'] = deaths_per100k['deaths per 100K'].rolling(7).mean()
-
-
-    incidence['rolling_incidence'] = incidence.incidence.rolling(7).mean()
-    metric = (incidence['rolling_incidence']*100000/population).iloc[[-1]]
+            incidence['rolling_incidence'] = incidence.incidence.rolling(7).mean()
+            return population, testing_df, testing_percent, county_deaths_time, county_confirmed_time, incidence
+    # metric = (incidence['rolling_incidence']*100000/population).iloc[[-1]]
 
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
+    population, testing_df, testing_percent, county_deaths_time, county_confirmed_time, incidence = get_testing_data_state()
     fig = Figure(linewidth=1, edgecolor="#cccccc", figsize=(12,8))
     ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
-    #fig, ((ax4, ax3),(ax1, ax2)) = plt.subplots(2,2, figsize=(6,4))
 
     county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
     county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
