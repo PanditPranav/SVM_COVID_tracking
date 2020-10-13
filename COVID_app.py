@@ -56,7 +56,7 @@ st.beta_set_page_config(
 
 sidebar_selection = st.sidebar.radio(
     'Select data:',
-    ['Tri-County Area', 'Select Counties', 'California'],
+    ['California', 'Select Counties', 'Sacramento Tri-County Area'],
 )
 
 @st.cache(ttl=3*60*60, suppress_st_warning=True)
@@ -283,7 +283,7 @@ def plot_county(county):
         
         with a3:
             st.markdown("% test positivity (14 day average)* = "+"%.2f" % testing_percent)
-    elif len(county)<=3:
+    elif len(county) <= 3:
         with c2:
             st.write('')
             st.write('')
@@ -390,8 +390,6 @@ def plot_state():
     ax1.set_xlabel('Time')
     ax1.set_ylabel('Number of individuals')
 
-
-
     testing_df.plot(ax = ax2,  lw=4, color = '#377eb8')
     #cases_per100k['cases per 100K'].plot(ax = ax2,  lw=4, linestyle='--', color = '#377eb8')
     #cases_per100k['rolling average'].plot(ax = ax2, lw=4, color = '#377eb8')
@@ -436,14 +434,17 @@ def plot_state():
             st.pyplot(fig)
 
     with c2:
-        # st.text('# new cases averaged over last 7 days = %s' %'{:,.1f}'.format(metric.values[0]))
         st.write('')
-        st.write('')
+        components.iframe("https://covidactnow.org/embed/us/california-ca", width=350, height=365, scrolling=False)
+
+    # st.text('# new cases averaged over last 7 days = %s' %'{:,.1f}'.format(metric.values[0]))
+    a1, a2 = st.beta_columns(2)
+    with a1:
         st.markdown("Population under consideration = %s"% '{:,.0f}'.format(population))
+        st.markdown("% test positivity (14 day average) = "+"%.2f" % testing_percent)
+    with a2:
         st.markdown("Total cases = %s"% '{:,.0f}'.format(county_confirmed_time.tail(1).values[0][0]))
         st.markdown("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
-        st.markdown("% test positivity (14 day average)= "+"%.2f" % testing_percent)
-
 
 
 t1, t2 = st.beta_columns(2)
@@ -475,8 +476,8 @@ if sidebar_selection == 'Select Counties':
         with expander:
             plot_county([c])
 
-if sidebar_selection == 'Tri-County Area':
-    st.markdown('## Combined Results for Tri-County Area')
+if sidebar_selection == 'Sacramento Tri-County Area':
+    st.markdown('## Combined Results for Sacramento Tri-County Area')
     tricounties = ['Yolo', 'Solano', 'Sacramento']
     plot_county(tricounties)
 
