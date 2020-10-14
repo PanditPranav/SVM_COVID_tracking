@@ -311,44 +311,68 @@ def plot_county(county):
 
     ### Experiment with Altair instead of Matplotlib.
     with c1:
-        a1, _, a2 = st.beta_columns((3.9, 0.2, 3.9))
-        testing_df = testing_df.to_frame().reset_index()
-        base = alt.Chart(testing_df).mark_line().encode(
-            x="Date",
-            y="new_tests_rolling",
-        )
-        with a1:
-            st.altair_chart(base, use_container_width=True)
-
+        a2, _, a1 = st.beta_columns((3.9, 0.2, 3.9))
+        
         # (incidence['rolling_incidence']*100000/population).plot(ax = ax4, lw = 4)
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
-        ax4 = alt.Chart(incidence).mark_line().encode(
-            x="Datetime",
-            y="nomalized_rolling_incidence",
+        incidence['Threshold for Phase 2: initial reopening'] = 5
+        incidence['Threshold for Phase 3: Economic recovery'] = 1
+        #incidence_plot = pd.melt(incidence, id_vars=['Date'], value_vars=['nomalized_rolling_incidence', 'Threshold for Phase 2: initial reopening'])
+        #scale = alt.Scale(domain=["rolling incidence", "Threshold for Phase 2: initial reopening", "Threshold for Phase 3: Economic recovery"], range=['#377eb8', '#e41a1c', '#4daf4a'])
+        
+        ax4 = alt.Chart(incidence, title = '(A) Weekly rolling mean of incidence per 100K').mark_line(strokeWidth=3).encode(
+            x=alt.X("Datetime", axis = alt.Axis(title = 'Date')),
+            y=alt.Y("nomalized_rolling_incidence", axis = alt.Axis(title = 'per 100 thousand')), 
+            color=alt.value("#377eb8")
         )
+        
+        line1 = alt.Chart(pd.DataFrame({'y': [5]})).mark_rule(strokeDash=[10, 10], strokeWidth = 4).encode(y='y', 
+                                                                                          color=alt.value("#e41a1c"))
+        line2 = alt.Chart(pd.DataFrame({'y': [1]})).mark_rule(strokeDash=[10, 10], strokeWidth = 4).encode(y='y',
+                                                                                          color=alt.value("#4daf4a"))
+        #chart = alt.Chart(incidence_plot).mark_line().encode(
+        #        x='Date',
+        #        y='value',
+        #       color='variable',
+        #        )
+        
         with a2:
-            st.altair_chart(ax4, use_container_width=True)
+            st.altair_chart(ax4+line1+line2, use_container_width=True)
 
-        a3, _, a4 = st.beta_columns((3.9, 0.2, 3.9))
-        ax3 = alt.Chart(incidence).mark_bar().encode(
-            x="Datetime",
-            y="incidence",
+        ax3 = alt.Chart(incidence, title = '(B) Daily incidence (new cases)').mark_bar().encode(
+            x=alt.X("Datetime",axis = alt.Axis(title = 'Date')),
+            y=alt.Y("incidence",axis = alt.Axis(title = 'Incidence'))
         )
-        with a3:
+        
+        with a1:
             st.altair_chart(ax3, use_container_width=True)
+        
+        a3, _, a4 = st.beta_columns((3.9, 0.2, 3.9))
+        testing_df = testing_df.to_frame().reset_index()
+        
+        base = alt.Chart(testing_df, title = '(D) Daily new tests').mark_line(strokeWidth=3).encode(
+            x=alt.X("Date",axis = alt.Axis(title = 'Date')),
+            y=alt.Y("new_tests_rolling",axis = alt.Axis(title = 'Daily new tests'))
+        )
+        with a4:
+            st.altair_chart(base, use_container_width=True)
 
         county_confirmed_time = county_confirmed_time.reset_index()
         county_deaths_time = county_deaths_time.reset_index()
         cases_and_deaths = county_confirmed_time.set_index("Datetime").join(county_deaths_time.set_index("Datetime"))
         cases_and_deaths = cases_and_deaths.reset_index()
-        base = alt.Chart(cases_and_deaths)
-        c = base.mark_line().encode(
-            x="Datetime",
-            y="cases"
+        base = alt.Chart(cases_and_deaths, title = '(C) Cumulative cases and deaths')
+        c = base.mark_line(strokeWidth=3).encode(
+            x=alt.X("Datetime",axis = alt.Axis(title = 'Date')),
+            y=alt.Y("cases",axis = alt.Axis(title = 'individuals')), 
+            color=alt.value("#377eb8")
         )
-        d = base.mark_line().encode(x="Datetime", y="deaths")
-        with a4:
+        d = base.mark_line(strokeWidth=3).encode(
+            x=alt.X("Datetime",axis = alt.Axis(title = 'Date')),
+            y=alt.Y("deaths"), 
+            color=alt.value("#e41a1c"))
+        with a3:
             st.altair_chart(c + d)
 
 
@@ -540,12 +564,12 @@ st.sidebar.markdown(f"""
 One of the key metrics for which data are widely available is the estimate of **daily new cases per 100,000
 population**.
 
-Here, in following graphics, we will track:
+Here, in following graphics, we will track:  
 
-(A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)
-(B) Daily incidence (new cases)
-(C) Cumulative cases and deaths
-(D) Daily new tests*
+(A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)  
+(B) Daily incidence (new cases)  
+(C) Cumulative cases and deaths  
+(D) Daily new tests*  
 
 Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.
 The data is updated at least once a day or sometimes twice a day in the [COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).
