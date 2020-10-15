@@ -442,7 +442,7 @@ st.sidebar.markdown("(D) Daily new tests*")
 st.sidebar.markdown("Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.")
 st.sidebar.markdown("The data is updated at least once a day or sometimes twice a day in the COVID-19 Data Repository.  https://github.com/CSSEGISandData/COVID-19")
 st.sidebar.markdown("Infection rate, positive test rate, ICU headtoom and contacts traceed from https://covidactnow.org/")
-st.sidebar.markdown("*Calculation of % positive tests depend on consistent reporting of county-wise total number of tests performed routinely. Rolling averages and proportions are not calculated if reporting is inconsistent over a period of 14 days.")
+st.sidebar.markdown("*Calculation of % positive tests depends on consistent reporting of county-wise total number of tests performed routinely. Rolling averages and proportions are not calculated if reporting is inconsistent over a period of 14 days.")
 st.sidebar.text('Report updated on '+ str(today))
 
 
