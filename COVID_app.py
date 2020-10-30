@@ -63,7 +63,7 @@ def plot_county(county):
             #print(len(County))
             f = FIPSs[FIPSs.County == County[0]].FIPS.values[0]
             #print(f)
-            path1 = 'https://data.covidactnow.org/latest/us/counties/'+f+'.OBSERVED_INTERVENTION.timeseries.json?apiKey={'+apiKey+'}'
+            path1 = 'https://data.covidactnow.org/latest/us/counties/'+f+'.OBSERVED_INTERVENTION.timeseries.json?apiKey='+apiKey
             #print(path1)
             df = json.loads(requests.get(path1).text)
             #print(df.keys())
@@ -99,7 +99,7 @@ def plot_county(county):
             new_tests = []
             for c in County:
                 f = FIPSs[FIPSs.County == c].FIPS.values[0]
-                path1 = 'https://data.covidactnow.org/latest/us/counties/'+f+'.OBSERVED_INTERVENTION.timeseries.json?apiKey={'+apiKey+'}'
+                path1 = 'https://data.covidactnow.org/latest/us/counties/'+f+'.OBSERVED_INTERVENTION.timeseries.json?apiKey='+apiKey
                 df = json.loads(requests.get(path1).text)
                 data = pd.DataFrame.from_dict(df['actualsTimeseries'])
                 data['Date'] = pd.to_datetime(data['date'])
@@ -133,7 +133,7 @@ def plot_county(county):
             return new_tests_rolling, data_to_show.iloc[-1:].values[0]
         else:
             st.text('Getting testing data for California State')
-            path1 = 'https://data.covidactnow.org/latest/us/states/CA.OBSERVED_INTERVENTION.timeseries.json?apiKey={'+apiKey+'}'
+            path1 = 'https://data.covidactnow.org/latest/us/states/CA.OBSERVED_INTERVENTION.timeseries.json?apiKey='+apiKey
             df = json.loads(requests.get(path1).text)
             data = pd.DataFrame.from_dict(df['actualsTimeseries'])
             data['Date'] = pd.to_datetime(data['date'])
@@ -283,7 +283,7 @@ def plot_state():
     def get_testing_data_state():
             apiKey = '9fe19182c5bf4d1bb105da08e593a578'
             st.text('Getting testing data for California State')
-            path1 = 'https://data.covidactnow.org/latest/us/states/CA.OBSERVED_INTERVENTION.timeseries.json?apiKey={'+apiKey+'}'
+            path1 = 'https://data.covidactnow.org/latest/us/states/CA.OBSERVED_INTERVENTION.timeseries.json?apiKey='+apiKey
             df = json.loads(requests.get(path1).text)
             data = pd.DataFrame.from_dict(df['actualsTimeseries'])
             data['Date'] = pd.to_datetime(data['date'])
