@@ -319,29 +319,30 @@ def plot_county(county):
         cases_and_deaths = county_confirmed_time.set_index("Datetime").join(county_deaths_time.set_index("Datetime"))
         cases_and_deaths = cases_and_deaths.reset_index()
 
-        # Workaround for adding legend to a layered chart.
-        # See https://github.com/altair-viz/altair/issues/984.
-        num_rows, _ = cases_and_deaths.shape
-        cases_and_deaths['cases_label'] = ['cases'] * num_rows
-        cases_and_deaths['deaths_label'] = ['deaths'] * num_rows
-
-        # TODO: Customize colors for cases and deaths plot.
+        # Custom colors for layered charts.
+        # See https://stackoverflow.com/questions/61543503/add-legend-to-line-bars-to-altair-chart-without-using-size-color.
+        scale = alt.Scale(domain=["cases", "deaths"], range=['#377eb8', '#e41a1c'])
         base = alt.Chart(
             cases_and_deaths,
             title='(C) Cumulative cases and deaths'
+        ).transform_calculate(
+            cases_="'cases'",
+            deaths_="'deaths'",
         )
+
         c = base.mark_line(strokeWidth=3).encode(
             x=alt.X("Datetime", axis=alt.Axis(title = 'Date')),
             y=alt.Y("cases", axis=alt.Axis(title = 'Count')),
-            opacity=alt.Opacity('cases_label', legend=alt.Legend(title="", gradientStrokeColor="#377eb8"))
+            color=alt.Color("cases_:N", scale=scale, title="")
         )
+
         d = base.mark_line(strokeWidth=3).encode(
             x=alt.X("Datetime", axis=alt.Axis(title='Date')),
             y=alt.Y("deaths", axis=alt.Axis(title = 'Count')),
-            opacity=alt.Opacity('deaths_label', legend=alt.Legend(title=""))
+            color=alt.Color("deaths_:N", scale=scale, title="")
         )
         with a3:
-            st.altair_chart(c + d, use_container_width=True)
+            st.altair_chart(c+d, use_container_width=True)
 
 
 def plot_state():
