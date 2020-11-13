@@ -3,6 +3,7 @@ from datetime import date
 from urllib.request import urlopen
 import time
 
+import altair as alt
 import matplotlib as mpl
 from matplotlib import dates as dates
 from matplotlib.figure import Figure
@@ -18,14 +19,13 @@ from matplotlib.dates import DateFormatter, MonthLocator, WeekdayLocator
 from matplotlib.ticker import NullFormatter
 from pandas.io.json import json_normalize
 
-import cProfile, pstats, io
-from pstats import SortKey
-pr = cProfile.Profile()
-pr.enable()
+_ENABLE_PROFILING = False
 
-import altair as alt
-
-print("hello, world!")
+if _ENABLE_PROFILING:
+    import cProfile, pstats, io
+    from pstats import SortKey
+    pr = cProfile.Profile()
+    pr.enable()
 
 # Use the non-interactive Agg backend, which is recommended as a
 # thread-safe backend.
@@ -218,64 +218,14 @@ def plot_county(county):
     incidence['rolling_incidence'] = incidence.incidence.rolling(7).mean()
     metric = (incidence['rolling_incidence'] * 100000 / population).iloc[[-1]]
 
-    # fig = Figure(linewidth=1, edgecolor="#cccccc", figsize=(12,8))
-    # ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
-
-    # county_confirmed_time.plot(ax = ax1,  lw=4, color = '#377eb8')
-    # county_deaths_time.plot(ax = ax1,  lw=4, color = '#e41a1c')
-    # ax1.set_xlabel('Time')
-    # ax1.set_ylabel('Number of individuals')
-
-    # testing_df.plot(ax = ax2,  lw=4, color = '#377eb8')
-    #cases_per100k['cases per 100K'].plot(ax = ax2,  lw=4, linestyle='--', color = '#377eb8')
-    #cases_per100k['rolling average'].plot(ax = ax2, lw=4, color = '#377eb8')
-
-    #deaths_per100k['deaths per 100K'].plot(ax = ax2,  lw=4, linestyle='--', color = '#e41a1c')
-    #deaths_per100k['rolling average'].plot(ax = ax2, lw=4, color = '#e41a1c')
-
-    # ax2.set_xlabel('Time')
-    # ax2.set_ylabel('Number of new tests')
-
-    # incidence.incidence.plot(kind ='bar', ax = ax3, width=1)
-    # ax3.set_xticklabels(incidence.index.strftime('%b %d'))
-    # for index, label in enumerate(ax3.xaxis.get_ticklabels()):
-    #     if index % 7 != 0:
-    #         label.set_visible(False)
-    # for index, label in enumerate(ax3.xaxis.get_major_ticks()):
-    #     if index % 7 != 0:
-    #         label.set_visible(False)
-
-    # (incidence['rolling_incidence']*100000/population).plot(ax = ax4, lw = 4)
-    # ax4.axhline(y = 5,  linewidth=2, color='r', ls = '--', label="Threshold for Phase 2:\nInitial re-opening")
-    # ax4.axhline(y = 1,  linewidth=2, color='b', ls = '--', label="Threshold for Phase 3:\nEconomic recovery")
-    # ax4.legend(fontsize = 10)
-    # if (incidence['rolling_incidence']*100000/population).max()< 5.5:
-    #     ax4.set_ylim(0,5.5)
-
-    # ax1.set_title('(C) Cumulative cases and deaths')
-    # ax2.set_title('(D) Daily new tests*')
-    # ax3.set_title('(B) Daily incidence (new cases)')
-    # ax4.set_title('(A) Weekly rolling mean of incidence per 100k')
-    # ax3.set_ylabel('Number of individuals')
-    # ax4.set_ylabel('per 100 thousand')
-
     if len(county) == 1:
         st.subheader('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' county ('+ str(today)+')')
     else:
         st.subheader('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' counties ('+ str(today)+')')
 
-
-    # c3 = st.beta_container()
-    # c1, _, c2 = st.beta_columns((8, .25, 4))
-    
     c1 = st.beta_container()
     c2 = st.beta_container()
-
-    # with c1:
-    #     st.write('')
-    #     with _lock:
-    #         fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    #         st.pyplot(fig)
+    c3 = st.beta_container()
 
     if len(county)==1:
         C = county[0]
@@ -312,14 +262,11 @@ def plot_county(county):
     ### Experiment with Altair instead of Matplotlib.
     with c1:
         a2, _, a1 = st.beta_columns((3.9, 0.2, 3.9))
-        
-        # (incidence['rolling_incidence']*100000/population).plot(ax = ax4, lw = 4)
+
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
         incidence['Threshold for Phase 2: initial reopening'] = 5
         incidence['Threshold for Phase 3: Economic recovery'] = 1
-        #incidence_plot = pd.melt(incidence, id_vars=['Date'], value_vars=['nomalized_rolling_incidence', 'Threshold for Phase 2: initial reopening'])
-        #scale = alt.Scale(domain=["rolling incidence", "Threshold for Phase 2: initial reopening", "Threshold for Phase 3: Economic recovery"], range=['#377eb8', '#e41a1c', '#4daf4a'])
         
         ax4 = alt.Chart(incidence, title = '(A) Weekly rolling mean of incidence per 100K').mark_line(strokeWidth=3).encode(
             x=alt.X("Datetime", axis = alt.Axis(title = 'Date')),
@@ -327,18 +274,26 @@ def plot_county(county):
             color=alt.value("#377eb8")
         )
         
-        line1 = alt.Chart(pd.DataFrame({'y': [5]})).mark_rule(strokeDash=[10, 10], strokeWidth = 4).encode(y='y', 
-                                                                                          color=alt.value("#e41a1c"))
-        line2 = alt.Chart(pd.DataFrame({'y': [1]})).mark_rule(strokeDash=[10, 10], strokeWidth = 4).encode(y='y',
-                                                                                          color=alt.value("#4daf4a"))
-        #chart = alt.Chart(incidence_plot).mark_line().encode(
-        #        x='Date',
-        #        y='value',
-        #       color='variable',
-        #        )
-        
+        line1 = alt.Chart(
+            pd.DataFrame({'y': [5]})
+        ).mark_rule(
+            strokeDash=[10, 10],
+            strokeWidth=4,
+        ).encode(
+            y='y',
+            color=alt.value("#e41a1c"),
+        )
+        line2 = alt.Chart(
+            pd.DataFrame({'y': [1]}),
+        ).mark_rule(
+            strokeDash=[10, 10],
+            strokeWidth = 4,
+        ).encode(
+            y='y',
+            color=alt.value("#4daf4a"),
+        )
         with a2:
-            st.altair_chart(ax4+line1+line2, use_container_width=True)
+            st.altair_chart(ax4 + line1 + line2, use_container_width=True)
 
         ax3 = alt.Chart(incidence, title = '(B) Daily incidence (new cases)').mark_bar().encode(
             x=alt.X("Datetime",axis = alt.Axis(title = 'Date')),
@@ -350,6 +305,7 @@ def plot_county(county):
         
         a3, _, a4 = st.beta_columns((3.9, 0.2, 3.9))
         testing_df = testing_df.to_frame().reset_index()
+        print(testing_df.columns)
         
         base = alt.Chart(testing_df, title = '(D) Daily new tests').mark_line(strokeWidth=3).encode(
             x=alt.X("Date",axis = alt.Axis(title = 'Date')),
@@ -362,18 +318,30 @@ def plot_county(county):
         county_deaths_time = county_deaths_time.reset_index()
         cases_and_deaths = county_confirmed_time.set_index("Datetime").join(county_deaths_time.set_index("Datetime"))
         cases_and_deaths = cases_and_deaths.reset_index()
-        base = alt.Chart(cases_and_deaths, title = '(C) Cumulative cases and deaths')
+
+        # Workaround for adding legend to a layered chart.
+        # See https://github.com/altair-viz/altair/issues/984.
+        num_rows, _ = cases_and_deaths.shape
+        cases_and_deaths['cases_label'] = ['cases'] * num_rows
+        cases_and_deaths['deaths_label'] = ['deaths'] * num_rows
+
+        # TODO: Customize colors for cases and deaths plot.
+        base = alt.Chart(
+            cases_and_deaths,
+            title='(C) Cumulative cases and deaths'
+        )
         c = base.mark_line(strokeWidth=3).encode(
-            x=alt.X("Datetime",axis = alt.Axis(title = 'Date')),
-            y=alt.Y("cases",axis = alt.Axis(title = 'individuals')), 
-            color=alt.value("#377eb8")
+            x=alt.X("Datetime", axis=alt.Axis(title = 'Date')),
+            y=alt.Y("cases", axis=alt.Axis(title = 'Count')),
+            opacity=alt.Opacity('cases_label', legend=alt.Legend(title="", gradientStrokeColor="#377eb8"))
         )
         d = base.mark_line(strokeWidth=3).encode(
-            x=alt.X("Datetime",axis = alt.Axis(title = 'Date')),
-            y=alt.Y("deaths"), 
-            color=alt.value("#e41a1c"))
+            x=alt.X("Datetime", axis=alt.Axis(title='Date')),
+            y=alt.Y("deaths", axis=alt.Axis(title = 'Count')),
+            opacity=alt.Opacity('deaths_label', legend=alt.Legend(title=""))
+        )
         with a3:
-            st.altair_chart(c + d)
+            st.altair_chart(c + d, use_container_width=True)
 
 
 def plot_state():
@@ -453,6 +421,7 @@ def plot_state():
     #print(county_deaths_time.tail(1).values[0])
     #print(cases_per100k.head())
     population, testing_df, testing_percent, county_deaths_time, county_confirmed_time, incidence = get_testing_data_state()
+    
     fig = Figure(linewidth=1, edgecolor="#cccccc", figsize=(12,8))
     ((ax4, ax3),(ax1, ax2)) = fig.subplots(2,2)
 
@@ -581,13 +550,12 @@ Infection rate, positive test rate, ICU headroom and contacts traced from https:
 *Report updated on {str(today)}.*
 """)
 
-
-pr.disable()
-s = io.StringIO()
-sortby = SortKey.CUMULATIVE
-ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-ps.print_stats()
-# print(s.getvalue())
-ts = int(time.time())
-with open(f"perf_{ts}.txt", "w") as f:
-    f.write(s.getvalue())
+if _ENABLE_PROFILING:
+    pr.disable()
+    s = io.StringIO()
+    sortby = SortKey.CUMULATIVE
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+    ts = int(time.time())
+    with open(f"perf_{ts}.txt", "w") as f:
+        f.write(s.getvalue())
