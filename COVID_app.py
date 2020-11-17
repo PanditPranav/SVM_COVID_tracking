@@ -505,10 +505,11 @@ For additional information please contact *epicenter@ucdavis.edu* or visit https
 if sidebar_selection == 'Select Counties':
     st.markdown('## Select counties of interest')
     CA_counties = confirmed[confirmed.Province_State == 'California'].Admin2.unique().tolist()
-    COUNTIES_SELECTED = st.multiselect('', CA_counties, default=['Yolo', 'Solano', 'Sacramento'])
-    plot_county(COUNTIES_SELECTED)
-
-    for c in COUNTIES_SELECTED:
+    counties = st.multiselect('', CA_counties, default=['Yolo', 'Solano', 'Sacramento'])
+    # Limit to the first 5 counties.
+    counties = counties[:5]
+    plot_county(counties)
+    for c in counties:
         expander = st.beta_expander(f"Details for {c} County")
         with expander:
             plot_county([c])
