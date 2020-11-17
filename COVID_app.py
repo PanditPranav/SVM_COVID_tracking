@@ -66,7 +66,7 @@ st.beta_set_page_config(
 
 sidebar_selection = st.sidebar.radio(
     'Select data:',
-    ['Select Counties', 'California', 'Sacramento Tri-County Area'],
+    ['Select Counties', 'California'],
 )
 
 @st.cache(ttl=3*60*60, suppress_st_warning=True)
@@ -346,10 +346,6 @@ def plot_county(county):
 
 
 def plot_state():
-    #FIPSs = confirmed.groupby(['Province_State', 'Admin2']).FIPS.unique().apply(pd.Series).reset_index()
-    #FIPSs.columns = ['State', 'County', 'FIPS']
-    #FIPSs['FIPS'].fillna(0, inplace = True)
-    #FIPSs['FIPS'] = FIPSs.FIPS.astype(int).astype(str).str.zfill(5)
     @st.cache(ttl=3*60*60, suppress_st_warning=True)
     def get_testing_data_state():
             st.text('Getting testing data for California State')
@@ -509,25 +505,14 @@ For additional information please contact *epicenter@ucdavis.edu* or visit https
 if sidebar_selection == 'Select Counties':
     st.markdown('## Select counties of interest')
     CA_counties = confirmed[confirmed.Province_State == 'California'].Admin2.unique().tolist()
-    COUNTIES_SELECTED = st.multiselect('', CA_counties, default=['Yolo'])
+    COUNTIES_SELECTED = st.multiselect('', CA_counties, default=['Yolo', 'Solano', 'Sacramento'])
     plot_county(COUNTIES_SELECTED)
 
     for c in COUNTIES_SELECTED:
         expander = st.beta_expander(f"Details for {c} County")
         with expander:
             plot_county([c])
-
-if sidebar_selection == 'Sacramento Tri-County Area':
-    st.markdown('## Combined Results for Sacramento Tri-County Area')
-    tricounties = ['Yolo', 'Solano', 'Sacramento']
-    plot_county(tricounties)
-
-    for c in tricounties:
-        expander = st.beta_expander(f"Results for {c} County")
-        with expander:
-            plot_county([c])
-
-if sidebar_selection == 'California':
+elif sidebar_selection == 'California':
     plot_state()
 
 st.sidebar.markdown(f"""
