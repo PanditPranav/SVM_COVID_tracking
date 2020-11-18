@@ -58,7 +58,7 @@ plt.rcParams['ytick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['figure.figsize'] = 8, 8
 
 
-st.set_page_config(
+st.beta_set_page_config(
     page_title="COVID19: EpiCenter for Disease Dynamics",
     layout='wide',
     initial_sidebar_state='auto',
