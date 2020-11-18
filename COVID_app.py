@@ -4,19 +4,12 @@ from urllib.request import urlopen
 import time
 
 import altair as alt
-import matplotlib as mpl
-from matplotlib import dates as dates
-from matplotlib.figure import Figure
-from matplotlib import style as style
 import numpy as np
 import pandas as pd
 import requests
 import seaborn as sns
 import streamlit as st
 import streamlit.components.v1 as components
-from matplotlib import pyplot as plt
-from matplotlib.dates import DateFormatter, MonthLocator, WeekdayLocator
-from matplotlib.ticker import NullFormatter
 from pandas.io.json import json_normalize
 
 _ENABLE_PROFILING = False
@@ -27,36 +20,7 @@ if _ENABLE_PROFILING:
     pr = cProfile.Profile()
     pr.enable()
 
-# Use the non-interactive Agg backend, which is recommended as a
-# thread-safe backend.
-# See https://matplotlib.org/3.3.2/faq/howto_faq.html#working-with-threads.
-mpl.use("agg")
-
-##############################################################################
-# Workaround for the limited multi-threading support in matplotlib.
-# Per the docs, we will avoid using `matplotlib.pyplot` for figures:
-# https://matplotlib.org/3.3.2/faq/howto_faq.html#how-to-use-matplotlib-in-a-web-application-server.
-# Moreover, we will guard all operations on the figure instances by the
-# class-level lock in the Agg backend.
-##############################################################################
-from matplotlib.backends.backend_agg import RendererAgg
-
-_lock = RendererAgg.lock
-
 today = date.today()
-#sns.set_style('whitegrid')
-style.use('fivethirtyeight')
-plt.rcParams['lines.linewidth'] = 1
-dpi = 1000
-plt.rcParams['font.size'] = 13
-#plt.rcParams['font.family'] = 'Times New Roman'
-plt.rcParams['axes.labelsize'] = plt.rcParams['font.size']
-plt.rcParams['axes.titlesize'] = plt.rcParams['font.size']
-plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
-plt.rcParams['xtick.labelsize'] = plt.rcParams['font.size']
-plt.rcParams['ytick.labelsize'] = plt.rcParams['font.size']
-plt.rcParams['figure.figsize'] = 8, 8
-
 
 st.beta_set_page_config(
     page_title="COVID19: EpiCenter for Disease Dynamics",
