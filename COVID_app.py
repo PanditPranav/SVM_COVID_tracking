@@ -665,19 +665,23 @@ with st.sidebar.beta_expander("Click to learn more about this dashboard"):
 
     Here, in following graphics, we will track:
 
-    (A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)
-    (B) Daily incidence (new cases)
-    (C) Cumulative cases and deaths
-    (D) Daily new tests*
+    (A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)  
+    
+    (B) Daily incidence (new cases)  
+    
+    (C) Cumulative cases and deaths  
+    
+    (D) Daily new tests*  
 
-    Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.
-    The data is updated at least once a day or sometimes twice a day in the [COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).
+    Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.  
+    
+    The data is updated at least once a day or sometimes twice a day in the [COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).  
 
-    Infection rate, positive test rate, ICU headroom and contacts traced from https://covidactnow.org/.
+    Infection rate, positive test rate, ICU headroom and contacts traced from https://covidactnow.org/.  
 
-    *Calculation of % positive tests depends on consistent reporting of county-wise total number of tests performed routinely. Rolling averages and proportions are not calculated if reporting is inconsistent over a period of 14 days.
+    *Calculation of % positive tests depends on consistent reporting of county-wise total number of tests performed routinely. Rolling averages and proportions are not calculated if reporting is inconsistent over a period of 14 days.  
 
-    *Report updated on {str(today)}.*
+    *Report updated on {str(today)}.*  
     """)
 
 if _ENABLE_PROFILING:
