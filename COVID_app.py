@@ -290,33 +290,41 @@ def plot_county(county):
 
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
-        incidence['Threshold for Phase 2: initial reopening'] = 25
-        incidence['Threshold for Phase 3: Economic recovery'] = 10
-        
-        ax4 = alt.Chart(incidence, title = '(A) Weekly rolling mean of incidence per 100K').mark_line(strokeWidth=3).encode(
-            x=alt.X("Datetime", axis = alt.Axis(title = 'Date')),
-            y=alt.Y("nomalized_rolling_incidence", axis = alt.Axis(title = 'per 100 thousand')), 
-            color=alt.value("#377eb8")
+        incidence['Phase 2 Threshold'] = 5
+        incidence['Phase 3 Threshold'] = 1
+        scale = alt.Scale(
+            domain=[
+                "rolling_incidence",
+                "Phase 2 Threshold",
+                "Phase 3 Threshold"
+            ], range=['#377eb8', '#e41a1c', '#4daf4a'])
+        base = alt.Chart(
+            incidence,
+            title='(A) Weekly rolling mean of incidence per 100K'
+        ).transform_calculate(
+            base_="'rolling_incidence'",
+            phase2_="'Phase 2 Threshold'",
+            phase3_="'Phase 3 Threshold'",
         )
         
-        line1 = alt.Chart(
-            pd.DataFrame({'y': [5]})
-        ).mark_rule(
-            strokeDash=[10, 10],
-            strokeWidth=4,
-        ).encode(
-            y='y',
-            color=alt.value("#e41a1c"),
+        ax4 = base.mark_line(strokeWidth=3).encode(
+            x=alt.X("Datetime", axis = alt.Axis(title='Date')),
+            y=alt.Y("nomalized_rolling_incidence", axis=alt.Axis(title='per 100 thousand')),
+            color=alt.Color("base_:N", scale=scale, title="")
         )
-        line2 = alt.Chart(
-            pd.DataFrame({'y': [1]}),
-        ).mark_rule(
-            strokeDash=[10, 10],
-            strokeWidth = 4,
-        ).encode(
-            y='y',
-            color=alt.value("#4daf4a"),
+
+        line1 = base.mark_line(strokeDash=[8, 8], strokeWidth=2).encode(
+            x=alt.X("Datetime", axis=alt.Axis(title = 'Date')),
+            y=alt.Y("Phase 2 Threshold", axis=alt.Axis(title='Count')),
+            color=alt.Color("phase2_:N", scale=scale, title="")
         )
+
+        line2 = base.mark_line(strokeDash=[8, 8], strokeWidth=2).encode(
+            x=alt.X("Datetime", axis=alt.Axis(title='Date')),
+            y=alt.Y("Phase 3 Threshold", axis=alt.Axis(title='Count')),
+            color=alt.Color("phase3_:N", scale=scale, title="")
+        )
+
         with a2:
             st.altair_chart(ax4 + line1 + line2, use_container_width=True)
 
