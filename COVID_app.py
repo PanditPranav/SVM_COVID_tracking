@@ -58,7 +58,7 @@ plt.rcParams['ytick.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['figure.figsize'] = 8, 8
 
 
-st.beta_set_page_config(
+st.set_page_config(
     page_title="COVID19: EpiCenter for Disease Dynamics",
     layout='wide',
     initial_sidebar_state='auto',
@@ -290,8 +290,8 @@ def plot_county(county):
 
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
-        incidence['Phase 2 Threshold'] = 5
-        incidence['Phase 3 Threshold'] = 1
+        incidence['Phase 2 Threshold'] = 25
+        incidence['Phase 3 Threshold'] = 10
         scale = alt.Scale(
             domain=[
                 "rolling_incidence",
@@ -475,8 +475,8 @@ def plot_state():
 
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
-        incidence['Phase 2 Threshold'] = 5
-        incidence['Phase 3 Threshold'] = 1
+        incidence['Phase 2 Threshold'] = 25
+        incidence['Phase 3 Threshold'] = 10
         
         scale = alt.Scale(
             domain=[
