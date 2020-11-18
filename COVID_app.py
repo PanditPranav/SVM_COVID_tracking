@@ -290,8 +290,8 @@ def plot_county(county):
 
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
-        incidence['Threshold for Phase 2: initial reopening'] = 5
-        incidence['Threshold for Phase 3: Economic recovery'] = 1
+        incidence['Threshold for Phase 2: initial reopening'] = 25
+        incidence['Threshold for Phase 3: Economic recovery'] = 10
         
         ax4 = alt.Chart(incidence, title = '(A) Weekly rolling mean of incidence per 100K').mark_line(strokeWidth=3).encode(
             x=alt.X("Datetime", axis = alt.Axis(title = 'Date')),
@@ -469,8 +469,8 @@ def plot_state():
 
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
-        incidence['Threshold for Phase 2: initial reopening'] = 5
-        incidence['Threshold for Phase 3: Economic recovery'] = 1
+        incidence['Threshold for Phase 2: initial reopening'] = 25
+        incidence['Threshold for Phase 3: Economic recovery'] = 10
         
         ax4 = alt.Chart(incidence, title = '(A) Weekly rolling mean of incidence per 100K').mark_line(strokeWidth=3).encode(
             x=alt.X("Datetime", axis = alt.Axis(title = 'Date')),
