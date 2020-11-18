@@ -22,7 +22,7 @@ if _ENABLE_PROFILING:
 
 today = date.today()
 
-st.beta_set_page_config(
+st.set_page_config(
     page_title="COVID19: EpiCenter for Disease Dynamics",
     layout='wide',
     initial_sidebar_state='auto',
