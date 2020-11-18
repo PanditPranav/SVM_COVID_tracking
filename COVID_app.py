@@ -639,9 +639,15 @@ with t2:
 
 st.write("")
 st.markdown("""
-COVID-Local provides basic key metrics against which to assess pandemic response and progress toward reopening.
-See more at https://www.covidlocal.org/metrics/.
-For additional information please contact *epicenter@ucdavis.edu* or visit https://ohi.vetmed.ucdavis.edu/centers/epicenter-disease-dynamics.""")
+COVID-Local provides basic key metrics against which to assess pandemic response and progress toward reopening.  
+Phase 2: Initial re-opening: Current esetimate of <25 cases per 100,000 population per day  
+Phase 3: Economic recovery: Current estimate of <10 cases per 100,000 population per day  
+
+for more details related to thresholds please see  
+See more at https://www.covidlocal.org/metrics/.    
+
+For additional information please contact *epicenter@ucdavis.edu* or visit https://ohi.vetmed.ucdavis.edu/centers/epicenter-disease-dynamics.  
+""")
 
 
 if sidebar_selection == 'Select Counties':
