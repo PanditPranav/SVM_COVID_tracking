@@ -617,7 +617,8 @@ with t1:
     st.markdown('# COVID-19 Data and Reporting')
 
 with t2:
-    st.header("")
+    st.write("")
+    st.write("")
     st.write("""
     **EpiCenter for Disease Dynamics** | School of Veterinary Medicine - UC Davis
     """)
@@ -637,32 +638,33 @@ if sidebar_selection == 'Select Counties':
     counties = counties[:5]
     plot_county(counties)
     for c in counties:
-        expander = st.beta_expander(f"Details for {c} County")
-        with expander:
+        st.write('')
+        with st.beta_expander(f"Expand for {c} County Details"):
             plot_county([c])
 elif sidebar_selection == 'California':
     plot_state()
 
-st.sidebar.markdown(f"""
-One of the key metrics for which data are widely available is the estimate of **daily new cases per 100,000
-population**.
+with st.sidebar.beta_expander("Click to learn more about this dashboard"):
+    st.markdown(f"""
+    One of the key metrics for which data are widely available is the estimate of **daily new cases per 100,000
+    population**.
 
-Here, in following graphics, we will track:  
+    Here, in following graphics, we will track:
 
-(A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)  
-(B) Daily incidence (new cases)  
-(C) Cumulative cases and deaths  
-(D) Daily new tests*  
+    (A) Estimates of daily new cases per 100,000 population (averaged over the last seven days)
+    (B) Daily incidence (new cases)
+    (C) Cumulative cases and deaths
+    (D) Daily new tests*
 
-Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.
-The data is updated at least once a day or sometimes twice a day in the [COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).
+    Data source: Data for cases are procured automatically from **COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University**.
+    The data is updated at least once a day or sometimes twice a day in the [COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19).
 
-Infection rate, positive test rate, ICU headroom and contacts traced from https://covidactnow.org/.
+    Infection rate, positive test rate, ICU headroom and contacts traced from https://covidactnow.org/.
 
-*Calculation of % positive tests depends on consistent reporting of county-wise total number of tests performed routinely. Rolling averages and proportions are not calculated if reporting is inconsistent over a period of 14 days.
+    *Calculation of % positive tests depends on consistent reporting of county-wise total number of tests performed routinely. Rolling averages and proportions are not calculated if reporting is inconsistent over a period of 14 days.
 
-*Report updated on {str(today)}.*
-""")
+    *Report updated on {str(today)}.*
+    """)
 
 if _ENABLE_PROFILING:
     pr.disable()
