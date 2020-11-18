@@ -641,7 +641,8 @@ st.write("")
 st.markdown("""
 COVID-Local provides basic key metrics against which to assess pandemic response and progress toward reopening.  
 Phase 2: Initial re-opening: Current esetimate of <25 cases per 100,000 population per day  
-Phase 3: Economic recovery: Current estimate of <10 cases per 100,000 population per day  
+Phase 3: Economic recovery: Current estimate of <10 cases per 100,000 population per day   
+*daily testing data currently available only for Los Angeles County, Orange County, and San Diego County  
 
 for more details related to thresholds please see  
 See more at https://www.covidlocal.org/metrics/.    
