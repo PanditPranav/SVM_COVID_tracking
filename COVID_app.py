@@ -562,6 +562,7 @@ if sidebar_selection == 'Select Counties':
     counties = counties[:5]
     if not counties:
         # If no counties are specified, just plot the state.
+        st.markdown('> No counties were selected, falling back to showing statistics for California state.')
         plot_state()
     else:
         # Plot the aggregate and per-county details.
