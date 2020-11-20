@@ -621,11 +621,16 @@ if sidebar_selection == 'Select Counties':
     counties = st.multiselect('', CA_counties, default=['Yolo', 'Solano', 'Sacramento'])
     # Limit to the first 5 counties.
     counties = counties[:5]
-    plot_county(counties)
-    for c in counties:
-        st.write('')
-        with st.beta_expander(f"Expand for {c} County Details"):
-            plot_county([c])
+    if not counties:
+        # If no counties are specified, just plot the state.
+        plot_state()
+    else:
+        # Plot the aggregate and per-county details.
+        plot_county(counties)
+        for c in counties:
+            st.write('')
+            with st.beta_expander(f"Expand for {c} County Details"):
+                plot_county([c])
 elif sidebar_selection == 'California':
     plot_state()
 
