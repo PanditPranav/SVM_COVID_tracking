@@ -180,6 +180,7 @@ def plot_county(county):
     del county_confirmed_time['date']
     incidence= pd.DataFrame(county_confirmed_time.cases.diff())
     incidence.columns = ['incidence']
+    chart_max = incidence.max().values[0]+500
 
     county_deaths = deaths[deaths.Admin2.isin(county)]
     population = county_deaths.Population.values.sum()
@@ -293,7 +294,7 @@ def plot_county(county):
 
         ax3 = alt.Chart(incidence, title = '(B) Daily incidence (new cases)').mark_bar().encode(
             x=alt.X("Datetime",axis = alt.Axis(title = 'Date')),
-            y=alt.Y("incidence",axis = alt.Axis(title = 'Incidence'))
+            y=alt.Y("incidence",axis = alt.Axis(title = 'Incidence'), scale=alt.Scale(domain=(0, chart_max), clamp=True))
         )
         
         with a1:
