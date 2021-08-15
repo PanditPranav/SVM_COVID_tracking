@@ -212,14 +212,14 @@ def plot_county(county):
     else:
         st.subheader('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' counties ('+ str(today)+')')
 
-    c1 = st.beta_container()
-    c2 = st.beta_container()
-    c3 = st.beta_container()
+    c1 = st.container()
+    c2 = st.container()
+    c3 = st.container()
 
     if len(county)==1:
         C = county[0]
         with c2:
-            a1, _, a2 = st.beta_columns((3.9, 0.2, 3.9))     
+            a1, _, a2 = st.columns((3.9, 0.2, 3.9))     
             with a1:
                 f = FIPSs[FIPSs.County == C].FIPS.values[0]
                 components.iframe("https://covidactnow.org/embed/us/county/"+f, width=350, height=365, scrolling=False)
@@ -240,7 +240,7 @@ def plot_county(county):
             st.markdown("Total deaths = %s"% '{:,.0f}'.format(county_deaths_time.tail(1).values[0][0]))
             st.markdown("% test positivity (14 day average)* = "+"%.2f" % testing_percent)
         with c3:
-            columns = st.beta_columns(len(county))
+            columns = st.columns(len(county))
             for idx, C in enumerate(county):
                 with columns[idx]:
                     st.write('')
@@ -250,7 +250,7 @@ def plot_county(county):
 
     ### Experiment with Altair instead of Matplotlib.
     with c1:
-        a2, _, a1 = st.beta_columns((3.9, 0.2, 3.9))
+        a2, _, a1 = st.columns((3.9, 0.2, 3.9))
 
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
@@ -300,7 +300,7 @@ def plot_county(county):
         with a1:
             st.altair_chart(ax3, use_container_width=True)
         
-        a3, _, a4 = st.beta_columns((3.9, 0.2, 3.9))
+        a3, _, a4 = st.columns((3.9, 0.2, 3.9))
         testing_df = pd.DataFrame(testing_df).reset_index()
         #print(testing_df.head())
         #print(type(testing_df))
