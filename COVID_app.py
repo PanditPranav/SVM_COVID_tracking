@@ -417,12 +417,12 @@ def plot_state():
     #print(cases_per100k.head())
     population, testing_df, testing_percent, county_deaths_time, county_confirmed_time, incidence = get_testing_data_state()
     st.subheader('Current situation of COVID-19 cases in California ('+ str(today)+')')
-    c1 = st.beta_container()
-    c2 = st.beta_container()
-    c3 = st.beta_container()
+    c1 = st.container()
+    c2 = st.container()
+    c3 = st.container()
 
     with c2:
-        a1, _, a2 = st.beta_columns((3.9, 0.2, 3.9))     
+        a1, _, a2 = st.columns((3.9, 0.2, 3.9))     
         with a1:
             #f = FIPSs[FIPSs.County == C].FIPS.values[0]
             components.iframe("https://covidactnow.org/embed/us/california-ca", width=350, height=365, scrolling=False)
@@ -435,7 +435,7 @@ def plot_state():
             
     ### Experiment with Altair instead of Matplotlib.
     with c1:
-        a2, _, a1 = st.beta_columns((3.9, 0.2, 3.9))
+        a2, _, a1 = st.columns((3.9, 0.2, 3.9))
 
         incidence = incidence.reset_index()
         incidence['nomalized_rolling_incidence'] = incidence['rolling_incidence'] * 100000 / population
@@ -485,7 +485,7 @@ def plot_state():
         with a1:
             st.altair_chart(ax3, use_container_width=True)
         
-        a3, _, a4 = st.beta_columns((3.9, 0.2, 3.9))
+        a3, _, a4 = st.columns((3.9, 0.2, 3.9))
         testing_df = pd.DataFrame(testing_df).reset_index()
         #print(testing_df.head())
         #print(type(testing_df))
@@ -529,7 +529,7 @@ def plot_state():
 
 
 ## functions end here, title, sidebar setting and descriptions start here
-t1, t2 = st.beta_columns(2)
+t1, t2 = st.columns(2)
 with t1:
     st.markdown('# COVID-19 Data and Reporting')
 
@@ -569,12 +569,12 @@ if sidebar_selection == 'Select Counties':
         plot_county(counties)
         for c in counties:
             st.write('')
-            with st.beta_expander(f"Expand for {c} County Details"):
+            with st.expander(f"Expand for {c} County Details"):
                 plot_county([c])
 elif sidebar_selection == 'California':
     plot_state()
 
-with st.sidebar.beta_expander("Click to learn more about this dashboard"):
+with st.sidebar.expander("Click to learn more about this dashboard"):
     st.markdown(f"""
     One of the key metrics for which data are widely available is the estimate of **daily new cases per 100,000
     population**.
