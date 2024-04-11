@@ -9,7 +9,7 @@ import pandas as pd
 import requests
 import streamlit as st
 import streamlit.components.v1 as components
-from pandas.io.json import json_normalize
+from pandas import json_normalize
 
 _ENABLE_PROFILING = False
 
